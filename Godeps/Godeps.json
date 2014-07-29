@@ -1,0 +1,5 @@
+{
+	"ImportPath": "github.com/cloudfoundry-incubator/notifications-sendgrid-receiver",
+	"GoVersion": "go1.2.1",
+	"Deps": []
+}

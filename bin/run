@@ -1,0 +1,13 @@
+#! /usr/bin/env bash
+set -e
+
+DIR=$(dirname $0)
+
+if [[ -z "$ENVIRONMENT" ]]; then
+    ENVIRONMENT=development
+fi
+
+source $DIR/env/$ENVIRONMENT
+
+godep restore
+go run main.go
