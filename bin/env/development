@@ -1,14 +1,7 @@
 #! /usr/bin/env bash
 set -e
 
-export HTTP_LOGGING_ENABLED=true
-export SMTP_HOST=https://smtp.10.244.0.34.xip.io
-export SMTP_PASS=smtp_pass
-export SMTP_PORT=587
-export SMTP_USER=smtp_user
-export SMTP_TLS=true
 export UAA_CLIENT_ID=admin
 export UAA_CLIENT_SECRET=admin-secret
 export UAA_HOST=https://uaa.10.244.0.34.xip.io
-export SENDER=no-reply@example.com
 export CC_HOST=https://api.10.244.0.34.xip.io

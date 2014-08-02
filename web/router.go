@@ -13,7 +13,7 @@ type Router struct {
 }
 
 func NewRouter() Router {
-    spaceMailer := &handlers.SpaceMailerApi{}
+    spaceMailer := &handlers.SpaceMailerAPI{}
 
     return Router{
         stacks: map[string]stack.Stack{
