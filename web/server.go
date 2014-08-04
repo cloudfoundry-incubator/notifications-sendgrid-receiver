@@ -3,7 +3,8 @@ package web
 import (
     "log"
     "net/http"
-    "os"
+
+    "github.com/cloudfoundry-incubator/notifications-sendgrid-receiver/config"
 )
 
 type Server struct {
@@ -14,12 +15,10 @@ func NewServer() Server {
 }
 
 func (s Server) Run() {
-    port := os.Getenv("PORT")
-    if port == "" {
-        port = "3000"
-    }
-    router := NewRouter()
-    log.Printf("Listening on localhost:%s\n", port)
+    env := config.NewEnvironment()
 
-    http.ListenAndServe(":"+port, router.Routes())
+    router := NewRouter()
+    log.Printf("Listening on localhost:%s\n", env.Port)
+
+    http.ListenAndServe(":"+env.Port, router.Routes())
 }

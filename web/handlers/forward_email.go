@@ -5,9 +5,9 @@ import (
     "errors"
     "io/ioutil"
     "net/http"
-    "os"
     "regexp"
 
+    "github.com/cloudfoundry-incubator/notifications-sendgrid-receiver/config"
     "github.com/pivotal-cf/uaa-sso-golang/uaa"
 )
 
@@ -52,13 +52,9 @@ func parseSpaceGuid(email string) (guid string, err error) {
 }
 
 func GetUAAToken() string {
-    loginURL := ""
-    uaaHost := os.Getenv("UAA_HOST")
-    uaaClientID := os.Getenv("UAA_CLIENT_ID")
-    uaaClientSecret := os.Getenv("UAA_CLIENT_SECRET")
-    accessToken := ""
+    env := config.NewEnvironment()
 
-    uaa := uaa.NewUAA(loginURL, uaaHost, uaaClientID, uaaClientSecret, accessToken)
+    uaa := uaa.NewUAA("", env.UAAHost, env.UAAClientID, env.UAAClientSecret, "")
 
     uaaToken, err := uaa.GetClientToken()
     if err != nil {

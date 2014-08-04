@@ -33,7 +33,7 @@ var _ = Describe("Space Mailer", func() {
 
             fakeNotificationsServer := httptest.NewServer(fakeRouter)
             defer fakeNotificationsServer.Close()
-            os.Setenv("NOTIFICATIONS_SERVER", fakeNotificationsServer.URL)
+            os.Setenv("NOTIFICATIONS_HOST", fakeNotificationsServer.URL)
 
             params := map[string]string{"to": "space-guid-mammoth1-banana2-damage3@example.com"}
 
@@ -60,7 +60,7 @@ var _ = Describe("Space Mailer", func() {
 
             fakeNotificationsServer := httptest.NewServer(fakeRouter)
             defer fakeNotificationsServer.Close()
-            os.Setenv("NOTIFICATIONS_SERVER", fakeNotificationsServer.URL)
+            os.Setenv("NOTIFICATIONS_HOST", fakeNotificationsServer.URL)
 
             params := map[string]string{
                 "to":   "space-guid-mammoth1-banana2-damage3@example.com",

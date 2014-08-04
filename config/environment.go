@@ -14,15 +14,18 @@ type Environment struct {
     UAAClientID       string
     UAAClientSecret   string
     CCHost            string
+    Port              string
     VerifySSL         bool
     RootPath          string
     NotificationsHost string
-} 
+}
+
 func NewEnvironment() Environment {
     return Environment{
         UAAHost:           loadOrPanic("UAA_HOST"),
         UAAClientID:       loadOrPanic("UAA_CLIENT_ID"),
         UAAClientSecret:   loadOrPanic("UAA_CLIENT_SECRET"),
+        Port:              loadOrPanic("PORT"),
         CCHost:            loadOrPanic("CC_HOST"),
         VerifySSL:         loadBool("VERIFY_SSL", true),
         RootPath:          loadOrPanic("ROOT_PATH"),

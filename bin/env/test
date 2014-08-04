@@ -7,3 +7,4 @@ export UAA_HOST=http://uaa.example.com
 export CC_HOST=https://api.example.com
 export ROOT_PATH=$HOME/workspace/go/src/github.com/cloudfoundry-incubator/notifications-sendgrid-receiver
 export NOTIFICATIONS_HOST=https://host.example.com
+export PORT=3000

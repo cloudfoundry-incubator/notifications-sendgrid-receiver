@@ -4,8 +4,9 @@ import (
     "bytes"
     "net/http"
     "net/url"
-    "os"
     "strconv"
+
+    "github.com/cloudfoundry-incubator/notifications-sendgrid-receiver/config"
 )
 
 type SpaceMailerAPIInterface interface {
@@ -15,14 +16,14 @@ type SpaceMailerAPIInterface interface {
 type SpaceMailerAPI struct{}
 
 func (api SpaceMailerAPI) PostToSpace(uaaAccessToken string, params map[string]string) error {
-    host := os.Getenv("NOTIFICATIONS_SERVER")
+    env := config.NewEnvironment()
 
     spaceGuid, err := parseSpaceGuid(params["to"])
     if err != nil {
         return err
     }
 
-    spaceURL := host + "/spaces/" + spaceGuid
+    spaceURL := env.NotificationsHost + "/spaces/" + spaceGuid
 
     data := url.Values{}
     data.Set("kind", params["kind"])
