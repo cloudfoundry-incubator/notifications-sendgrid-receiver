@@ -16,7 +16,7 @@ import (
 var _ = Describe("Forward", func() {
     var handler handlers.ForwardEmail
     var fakeUAAServer *httptest.Server
-    fakeSpaceMailerAPI := &handlers.FakeSpaceMailerAPI{}
+    fakeNotificationsReceiver := &handlers.FakeNotificationsReceiver{}
 
     BeforeEach(func() {
         fakeUAAServer = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -45,7 +45,7 @@ var _ = Describe("Forward", func() {
             panic(err)
         }
 
-        handler = handlers.NewForwardEmail(fakeSpaceMailerAPI)
+        handler = handlers.NewForwardEmail(fakeNotificationsReceiver)
     })
 
     AfterEach(func() {
@@ -85,8 +85,8 @@ var _ = Describe("Forward", func() {
 
             handler.ServeHTTP(writer, request)
 
-            Expect(fakeSpaceMailerAPI.SpaceGuid).To(Equal("foo123-bar456"))
-            Expect(fakeSpaceMailerAPI.Params).To(Equal("blank"))
+            Expect(fakeNotificationsReceiver.SpaceGuid).To(Equal("foo123-bar456"))
+            Expect(fakeNotificationsReceiver.Params).To(Equal("blank"))
         })
 
     })

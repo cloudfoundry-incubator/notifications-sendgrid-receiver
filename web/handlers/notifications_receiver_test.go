@@ -13,11 +13,11 @@ import (
     . "github.com/onsi/gomega"
 )
 
-var _ = Describe("Space Mailer", func() {
+var _ = Describe("Notifications Receiver", func() {
     Describe("#PostToSpace", func() {
-        var api handlers.SpaceMailerAPI
+        var receiver handlers.NotificationsReceiver
         BeforeEach(func() {
-            api = handlers.SpaceMailerAPI{}
+            receiver = handlers.NotificationsReceiver{}
 
         })
 
@@ -37,7 +37,7 @@ var _ = Describe("Space Mailer", func() {
 
             params := map[string]string{"to": "space-guid-mammoth1-banana2-damage3@example.com"}
 
-            api.PostToSpace("fakeTokenThatNeedsToBeCreatedOrSomething", params)
+            receiver.PostToSpace("fakeTokenThatNeedsToBeCreatedOrSomething", params)
 
             Expect(contentTypeHeader).To(Equal("application/x-www-form-urlencoded"))
             Expect(authorizationHeader).To(Equal("Bearer fakeTokenThatNeedsToBeCreatedOrSomething"))
@@ -68,7 +68,7 @@ var _ = Describe("Space Mailer", func() {
                 "text": "Contents of the email message",
             }
 
-            api.PostToSpace("fakeTokenThatNeedsToBeCreatedOrSomething", params)
+            receiver.PostToSpace("fakeTokenThatNeedsToBeCreatedOrSomething", params)
 
             Expect(guid).To(Equal("mammoth1-banana2-damage3"))
             Expect(kind).To(Equal("spacemail"))
@@ -79,7 +79,7 @@ var _ = Describe("Space Mailer", func() {
             params := map[string]string{
                 "to": "",
             }
-            err := api.PostToSpace("fakeTokenThatNeedsToBeCreatedOrSomething", params)
+            err := receiver.PostToSpace("fakeTokenThatNeedsToBeCreatedOrSomething", params)
             Expect(err).To(Equal(errors.New("Invalid params - unable to parse guid")))
         })
     })

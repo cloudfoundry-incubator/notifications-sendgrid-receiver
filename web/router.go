@@ -13,12 +13,12 @@ type Router struct {
 }
 
 func NewRouter() Router {
-    spaceMailer := &handlers.SpaceMailerAPI{}
+    notificationsReceiver := &handlers.NotificationsReceiver{}
 
     return Router{
         stacks: map[string]stack.Stack{
             "GET /info": stack.NewStack(handlers.NewGetInfo()),
-            "POST /":    stack.NewStack(handlers.NewForwardEmail(spaceMailer)),
+            "POST /":    stack.NewStack(handlers.NewForwardEmail(notificationsReceiver)),
         },
     }
 }

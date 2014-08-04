@@ -11,16 +11,16 @@ import (
     "github.com/cloudfoundry-incubator/notifications-sendgrid-receiver/config"
 )
 
-type SpaceMailerAPIInterface interface {
+type NotificationsReceiverInterface interface {
     PostToSpace(string, map[string]string) error
 }
 
-type SpaceMailerAPI struct{}
+type NotificationsReceiver struct{}
 
-func (api SpaceMailerAPI) PostToSpace(uaaAccessToken string, params map[string]string) error {
+func (receiver NotificationsReceiver) PostToSpace(uaaAccessToken string, params map[string]string) error {
     env := config.NewEnvironment()
 
-    spaceGuid, err := api.parseSpaceGuid(params["to"])
+    spaceGuid, err := receiver.parseSpaceGuid(params["to"])
     if err != nil {
         return err
     }
@@ -50,7 +50,7 @@ func (api SpaceMailerAPI) PostToSpace(uaaAccessToken string, params map[string]s
     return nil
 }
 
-func (api SpaceMailerAPI) parseSpaceGuid(email string) (guid string, err error) {
+func (receiver NotificationsReceiver) parseSpaceGuid(email string) (guid string, err error) {
     regex, err := regexp.Compile("space-guid-([a-zA-Z0-9-]*)@")
     if err != nil {
         return "", err

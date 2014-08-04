@@ -10,12 +10,12 @@ import (
 )
 
 type ForwardEmail struct {
-    Api SpaceMailerAPIInterface
+    Receiver NotificationsReceiverInterface
 }
 
-func NewForwardEmail(api SpaceMailerAPIInterface) ForwardEmail {
+func NewForwardEmail(receiver NotificationsReceiverInterface) ForwardEmail {
     return ForwardEmail{
-        Api: api,
+        Receiver: receiver,
     }
 }
 
@@ -29,7 +29,7 @@ func (handler ForwardEmail) ServeHTTP(w http.ResponseWriter, req *http.Request) 
 
         env := config.NewEnvironment()
         uaa := uaa.NewUAAClient(env)
-        handler.Api.PostToSpace(uaa.AccessToken(), params)
+        handler.Receiver.PostToSpace(uaa.AccessToken(), params)
     }
 
     w.WriteHeader(http.StatusOK)
