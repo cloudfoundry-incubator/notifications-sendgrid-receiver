@@ -44,6 +44,8 @@ var _ = Describe("Forward", func() {
         if err != nil {
             panic(err)
         }
+
+        handler = handlers.NewForwardEmail(fakeSpaceMailerAPI)
     })
 
     AfterEach(func() {
@@ -51,10 +53,6 @@ var _ = Describe("Forward", func() {
     })
 
     Describe("ServeHTTP", func() {
-        BeforeEach(func() {
-            handler = handlers.NewForwardEmail(fakeSpaceMailerAPI)
-        })
-
         It("returns a 200 response code and an empty JSON body", func() {
             writer := httptest.NewRecorder()
             request, err := http.NewRequest("POST", "/", nil)
@@ -68,14 +66,14 @@ var _ = Describe("Forward", func() {
             Expect(writer.Body.String()).To(Equal("{}"))
         })
 
-        It("send a notification to the notifications service with space guid", func() {
+        It("sends a notification to the notifications service with space guid", func() {
             writer := httptest.NewRecorder()
             body, err := json.Marshal(map[string]string{
                 "headers": "horseman",
                 "text":    "Where's my head?",
                 "html":    "<b>Where's my head!</b>",
                 "from":    "horseman@example.com",
-                "to":      "space-guid-foo123-bar456@example.com",
+                "to":      "foo123-bar456",
                 "cc":      "johnnydepp@example.com",
                 "subject": "Banana Damage",
             })
@@ -91,12 +89,5 @@ var _ = Describe("Forward", func() {
             Expect(fakeSpaceMailerAPI.Params).To(Equal("blank"))
         })
 
-    })
-
-    Describe("GetUAAToken()", func() {
-        It("returns a uaaAccess Token", func() {
-            accessToken := handlers.GetUAAToken()
-            Expect(accessToken).To(Equal("fakeAuthToken"))
-        })
     })
 })

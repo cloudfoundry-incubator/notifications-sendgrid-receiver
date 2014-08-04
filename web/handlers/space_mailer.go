@@ -2,8 +2,10 @@ package handlers
 
 import (
     "bytes"
+    "errors"
     "net/http"
     "net/url"
+    "regexp"
     "strconv"
 
     "github.com/cloudfoundry-incubator/notifications-sendgrid-receiver/config"
@@ -18,7 +20,7 @@ type SpaceMailerAPI struct{}
 func (api SpaceMailerAPI) PostToSpace(uaaAccessToken string, params map[string]string) error {
     env := config.NewEnvironment()
 
-    spaceGuid, err := parseSpaceGuid(params["to"])
+    spaceGuid, err := api.parseSpaceGuid(params["to"])
     if err != nil {
         return err
     }
@@ -46,4 +48,18 @@ func (api SpaceMailerAPI) PostToSpace(uaaAccessToken string, params map[string]s
 
     response.Body.Close()
     return nil
+}
+
+func (api SpaceMailerAPI) parseSpaceGuid(email string) (guid string, err error) {
+    regex, err := regexp.Compile("space-guid-([a-zA-Z0-9-]*)@")
+    if err != nil {
+        return "", err
+    }
+
+    if regex.FindStringSubmatch(email) == nil {
+        return "", errors.New("Invalid params - unable to parse guid")
+    }
+
+    guid = regex.FindStringSubmatch(email)[1]
+    return
 }

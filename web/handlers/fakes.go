@@ -7,7 +7,7 @@ type FakeSpaceMailerAPI struct {
 }
 
 func (fake *FakeSpaceMailerAPI) PostToSpace(uaaAccessToken string, params map[string]string) error {
-    fake.SpaceGuid, _ = parseSpaceGuid(params["to"])
+    fake.SpaceGuid, _ = params["to"]
     fake.Params = "blank"
 
     return nil
