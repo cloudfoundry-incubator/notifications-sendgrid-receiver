@@ -3,6 +3,7 @@ package web
 import (
     "strings"
 
+    "github.com/cloudfoundry-incubator/notifications-sendgrid-receiver/requests"
     "github.com/cloudfoundry-incubator/notifications-sendgrid-receiver/web/handlers"
     "github.com/gorilla/mux"
     "github.com/ryanmoran/stack"
@@ -13,12 +14,10 @@ type Router struct {
 }
 
 func NewRouter() Router {
-    notificationsReceiver := &handlers.NotificationsReceiver{}
-
     return Router{
         stacks: map[string]stack.Stack{
             "GET /info": stack.NewStack(handlers.NewGetInfo()),
-            "POST /":    stack.NewStack(handlers.NewForwardEmail(notificationsReceiver)),
+            "POST /":    stack.NewStack(handlers.NewForwardEmail(requests.NewRequestBuilder(), requests.NewRequestSender())),
         },
     }
 }

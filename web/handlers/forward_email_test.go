@@ -16,7 +16,8 @@ import (
 var _ = Describe("Forward", func() {
     var handler handlers.ForwardEmail
     var fakeUAAServer *httptest.Server
-    fakeNotificationsReceiver := &handlers.FakeNotificationsReceiver{}
+    var fakeRequestBuilder FakeRequestBuilder
+    var fakeRequestSender FakeRequestSender
 
     BeforeEach(func() {
         fakeUAAServer = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -45,7 +46,7 @@ var _ = Describe("Forward", func() {
             panic(err)
         }
 
-        handler = handlers.NewForwardEmail(fakeNotificationsReceiver)
+        handler = handlers.NewForwardEmail(&fakeRequestBuilder, &fakeRequestSender)
     })
 
     AfterEach(func() {
@@ -53,29 +54,10 @@ var _ = Describe("Forward", func() {
     })
 
     Describe("ServeHTTP", func() {
-        It("returns a 200 response code and an empty JSON body", func() {
-            writer := httptest.NewRecorder()
-            request, err := http.NewRequest("POST", "/", nil)
-            if err != nil {
-                panic(err)
-            }
-
-            handler.ServeHTTP(writer, request)
-
-            Expect(writer.Code).To(Equal(http.StatusOK))
-            Expect(writer.Body.String()).To(Equal("{}"))
-        })
-
-        It("sends a notification to the notifications service with space guid", func() {
+        It("sends a request built by the request builder  to the notifications service", func() {
             writer := httptest.NewRecorder()
             body, err := json.Marshal(map[string]string{
-                "headers": "horseman",
-                "text":    "Where's my head?",
-                "html":    "<b>Where's my head!</b>",
-                "from":    "horseman@example.com",
-                "to":      "foo123-bar456",
-                "cc":      "johnnydepp@example.com",
-                "subject": "Banana Damage",
+                "stuff": "lol",
             })
 
             request, err := http.NewRequest("POST", "/", bytes.NewBuffer(body))
@@ -85,9 +67,24 @@ var _ = Describe("Forward", func() {
 
             handler.ServeHTTP(writer, request)
 
-            Expect(fakeNotificationsReceiver.SpaceGuid).To(Equal("foo123-bar456"))
-            Expect(fakeNotificationsReceiver.Params).To(Equal("blank"))
+            Expect(fakeRequestSender.Request).To(Equal(fakeRequestBuilder.Request))
         })
 
+        Context("when notifications responds with a success", func() {
+            // TODO test that we hit UAA for access token
+
+            It("returns a 200 response code and an empty JSON body", func() {
+                writer := httptest.NewRecorder()
+                request, err := http.NewRequest("POST", "/", nil)
+                if err != nil {
+                    panic(err)
+                }
+
+                handler.ServeHTTP(writer, request)
+
+                Expect(writer.Code).To(Equal(http.StatusOK))
+                Expect(writer.Body.String()).To(Equal("{}"))
+            })
+        })
     })
 })
