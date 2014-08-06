@@ -1,0 +1,4 @@
+---
+applications:
+  - name: notifications-sendgrid-receiver
+    command: bin/notifications-sendgrid-receiver
