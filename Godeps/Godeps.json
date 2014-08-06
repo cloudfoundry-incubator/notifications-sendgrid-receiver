@@ -1,5 +1,38 @@
 {
 	"ImportPath": "github.com/cloudfoundry-incubator/notifications-sendgrid-receiver",
 	"GoVersion": "go1.2.1",
-	"Deps": []
+	"Packages": [
+		"./..."
+	],
+	"Deps": [
+		{
+			"ImportPath": "github.com/dgrijalva/jwt-go",
+			"Comment": "v1.0.0-2-gf7a9d2e",
+			"Rev": "f7a9d2e66ed71a4e3bfaa24380e84bf465d665a8"
+		},
+		{
+			"ImportPath": "github.com/gorilla/context",
+			"Rev": "1be7a086a5fd6440ef16fe96baeda0c78282b980"
+		},
+		{
+			"ImportPath": "github.com/gorilla/mux",
+			"Rev": "9ede152210fa25c1377d33e867cb828c19316445"
+		},
+		{
+			"ImportPath": "github.com/onsi/ginkgo",
+			"Rev": "7083fb7612a8bc8ef9a48c35b8364fd06fadf9ad"
+		},
+		{
+			"ImportPath": "github.com/onsi/gomega",
+			"Rev": "ff48b6baeb8028ce0ad570efbe36b1534b7efd0c"
+		},
+		{
+			"ImportPath": "github.com/pivotal-cf/uaa-sso-golang/uaa",
+			"Rev": "566d28a584fb208e74596449aa3c6d557218af04"
+		},
+		{
+			"ImportPath": "github.com/ryanmoran/stack",
+			"Rev": "d49bfd8194ebe89813efccde7de6f4d7b0751df5"
+		}
+	]
 }
