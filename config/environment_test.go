@@ -135,13 +135,4 @@ var _ = Describe("Environment", func() {
             Expect(env.VerifySSL).To(BeTrue())
         })
     })
-
-    Describe("RootPath config", func() {
-        It("loads the config value", func() {
-            os.Setenv("ROOT_PATH", "bananaDAMAGE")
-            env := config.NewEnvironment()
-
-            Expect(env.RootPath).To(Equal("bananaDAMAGE"))
-        })
-    })
 })

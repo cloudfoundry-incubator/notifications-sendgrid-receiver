@@ -1,0 +1,3 @@
+
+/bin/bosh-lite-deploy
+/bin/env/development

@@ -1,8 +1,0 @@
-#! /usr/bin/env bash
-set -e
-
-export UAA_CLIENT_ID=admin
-export UAA_CLIENT_SECRET=admin-secret
-export UAA_HOST=https://uaa.10.244.0.34.xip.io
-export CC_HOST=https://api.10.244.0.34.xip.io
-export PORT=3000

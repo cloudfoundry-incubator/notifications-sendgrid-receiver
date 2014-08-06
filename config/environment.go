@@ -16,7 +16,6 @@ type Environment struct {
     CCHost            string
     Port              string
     VerifySSL         bool
-    RootPath          string
     NotificationsHost string
 }
 
@@ -28,7 +27,6 @@ func NewEnvironment() Environment {
         Port:              loadOrPanic("PORT"),
         CCHost:            loadOrPanic("CC_HOST"),
         VerifySSL:         loadBool("VERIFY_SSL", true),
-        RootPath:          loadOrPanic("ROOT_PATH"),
         NotificationsHost: loadOrPanic("NOTIFICATIONS_HOST"),
     }
 }

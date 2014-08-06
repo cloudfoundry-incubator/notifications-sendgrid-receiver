@@ -2,6 +2,7 @@ package handlers
 
 import (
     "encoding/json"
+    "fmt"
     "io/ioutil"
     "net/http"
 
@@ -25,6 +26,7 @@ func NewForwardEmail(requestBuilder requests.RequestBuilderInterface,
 }
 
 func (handler ForwardEmail) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+    fmt.Println("ServeHTTP is running")
     if req.Body != nil {
         var body []byte
         var params map[string]string
@@ -37,6 +39,7 @@ func (handler ForwardEmail) ServeHTTP(w http.ResponseWriter, req *http.Request) 
 
         request, err := handler.requestBuilder.Build(params, uaa.AccessToken())
 
+        fmt.Println("Request----> %v", request)
         if err != nil {
             panic(err) // TODO HANDLE THE ERROR CORRECTLY
         }
