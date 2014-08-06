@@ -1,0 +1,4 @@
+--ignore-dir=logs
+--ignore-dir=Godeps
+--ignore-dir=log
+

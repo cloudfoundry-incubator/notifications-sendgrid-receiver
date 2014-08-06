@@ -1,10 +1,10 @@
 package web
 
 import (
-    "log"
     "net/http"
 
     "github.com/cloudfoundry-incubator/notifications-sendgrid-receiver/config"
+    "github.com/cloudfoundry-incubator/notifications-sendgrid-receiver/log"
 )
 
 type Server struct {

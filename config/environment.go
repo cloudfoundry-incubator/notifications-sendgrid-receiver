@@ -17,6 +17,7 @@ type Environment struct {
     Port              string
     VerifySSL         bool
     NotificationsHost string
+    LogFile           string
 }
 
 func NewEnvironment() Environment {
@@ -28,6 +29,7 @@ func NewEnvironment() Environment {
         CCHost:            loadOrPanic("CC_HOST"),
         VerifySSL:         loadBool("VERIFY_SSL", true),
         NotificationsHost: loadOrPanic("NOTIFICATIONS_HOST"),
+        LogFile:           loadOrDefault("LOG_FILE", ""),
     }
 }
 
@@ -37,6 +39,14 @@ func loadOrPanic(name string) string {
         panic(errors.New(fmt.Sprintf("Could not find required %s environment variable", name)))
     }
     return value
+}
+
+func loadOrDefault(name, defaultValue string) string {
+    variable := os.Getenv(name)
+    if variable == "" {
+        variable = defaultValue
+    }
+    return variable
 }
 
 func loadBool(name string, defaultValue bool) bool {

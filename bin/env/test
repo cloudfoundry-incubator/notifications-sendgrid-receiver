@@ -8,3 +8,4 @@ export CC_HOST=https://api.example.com
 export ROOT_PATH=$HOME/workspace/go/src/github.com/cloudfoundry-incubator/notifications-sendgrid-receiver
 export NOTIFICATIONS_HOST=https://host.example.com
 export PORT=3000
+export LOG_FILE=/Users/pivotal/workspace/go/src/github.com/cloudfoundry-incubator/notifications-sendgrid-receiver/logs/test.log

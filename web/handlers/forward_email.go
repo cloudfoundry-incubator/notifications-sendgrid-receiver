@@ -2,11 +2,11 @@ package handlers
 
 import (
     "encoding/json"
-    "fmt"
     "io/ioutil"
     "net/http"
 
     "github.com/cloudfoundry-incubator/notifications-sendgrid-receiver/config"
+    "github.com/cloudfoundry-incubator/notifications-sendgrid-receiver/log"
     "github.com/cloudfoundry-incubator/notifications-sendgrid-receiver/requests"
     "github.com/cloudfoundry-incubator/notifications-sendgrid-receiver/uaa"
 )
@@ -26,7 +26,6 @@ func NewForwardEmail(requestBuilder requests.RequestBuilderInterface,
 }
 
 func (handler ForwardEmail) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-    fmt.Println("ServeHTTP is running")
     if req.Body != nil {
         var body []byte
         var params map[string]string
@@ -39,8 +38,8 @@ func (handler ForwardEmail) ServeHTTP(w http.ResponseWriter, req *http.Request) 
 
         request, err := handler.requestBuilder.Build(params, uaa.AccessToken())
 
-        fmt.Println("Request----> %v", request)
         if err != nil {
+            log.PrintlnErr("Panicking with error: " + err.Error())
             panic(err) // TODO HANDLE THE ERROR CORRECTLY
         }
         handler.requestSender.Send(request)
