@@ -1,8 +1,6 @@
 package handlers
 
 import (
-    "encoding/json"
-    "io/ioutil"
     "net/http"
 
     "github.com/cloudfoundry-incubator/notifications-sendgrid-receiver/config"
@@ -27,11 +25,18 @@ func NewForwardEmail(requestBuilder requests.RequestBuilderInterface,
 
 func (handler ForwardEmail) ServeHTTP(w http.ResponseWriter, req *http.Request) {
     if req.Body != nil {
-        var body []byte
-        var params map[string]string
+        params := make(map[string]string)
 
-        body, _ = ioutil.ReadAll(req.Body)
-        json.Unmarshal(body, &params)
+        log.Println("Sendgrid request header: ", req.Header)
+        log.Printf("The body of the post: %#v", req.Body)
+
+        err := req.ParseMultipartForm(8096)
+        if err != nil {
+            panic(err)
+        }
+
+        params["to"] = req.MultipartForm.Value["to"][0]
+        params["text"] = "Eventually the text from the sendgrid post..."
 
         env := config.NewEnvironment()
         uaa := uaa.NewUAAClient(env)

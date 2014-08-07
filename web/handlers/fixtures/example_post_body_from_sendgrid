@@ -1,0 +1,63 @@
+--xYzZY
+Content-Disposition: form-data; name="headers"
+
+Received: by mx-003.sjc1.sendgrid.net with SMTP id uDv8XYXmBu Wed, 06 Aug 2014 22:32:40 +0000 (GMT)
+Received: from mail-wi0-f170.google.com (mail-wi0-f170.google.com [209.85.212.170]) by mx-003.sjc1.sendgrid.net (Postfix) with ESMTPS id DF113DA0B14 for <space-guid-c88e8458-f51f-4610-a6e0-efb4c06e8d62@space-a1.cf-app.com>; Wed,  6 Aug 2014 22:32:39 +0000 (GMT)
+Received: by mail-wi0-f170.google.com with SMTP id f8so116958wiw.3 for <space-guid-c88e8458-f51f-4610-a6e0-efb4c06e8d62@space-a1.cf-app.com>; Wed, 06 Aug 2014 15:32:38 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=1e100.net; s=20130820; h=x-gm-message-state:mime-version:date:message-id:subject:from:to :content-type; bh=1dzRGu6IZqEapet5ZKdoIP0KAG/qicWhqS/5EYt7X6E=; b=PHwHdxXqlTUDd+3yJyVRst5Q7qmYXTZTJwshhhd70xAme4qqO72GYeGIEDjdxz5/mx fim0eNwlQjrSdAbPymWBCrRTmwAYXTwYdYsICktZTZKwJH55hA/KlgxNSRoEOpaF9EPH TvobAzOy6b8uCphZq0dVi+TQT5ewS7U0Km3IN5q36dubYwVF3aL1txA1WOsUeW5OMZLi 3ypRZ9RqKDt3b5qqNKbnsQNT2C1VNyPEuM3bj/EskruW5stqNgIjBzpGqZVfOoHDrRrf F9nRD6RkqYqNyv8ZBpjHXm53YcXKoTQ88ioAhl0b0yaTDCcSwdPeTSANcA+tFd2Gs9A0 htjg==
+X-Gm-Message-State: ALoCoQmgJ1NFa1TRWV33rYUPcJOvnm5+iFNmboZ4AjKXUerAVwTONK8txRORTLPpPUrkq9sLP714
+MIME-Version: 1.0
+X-Received: by 10.194.216.163 with SMTP id or3mr18753931wjc.31.1407364358379; Wed, 06 Aug 2014 15:32:38 -0700 (PDT)
+Received: by 10.217.59.202 with HTTP; Wed, 6 Aug 2014 15:32:38 -0700 (PDT)
+Date: Wed, 6 Aug 2014 15:32:38 -0700
+Message-ID: <CAPCQ=CMt0uGd8j5XMKOWWPiJZGAj1Epw7LteoLQw835FZDbPYw@mail.gmail.com>
+Subject: another test
+From: Johnathon Britz <jbritz@pivotal.io>
+To: space-guid-c88e8458-f51f-4610-a6e0-efb4c06e8d62@space-a1.cf-app.com
+Content-Type: multipart/alternative; boundary=001a11c27eb4a6b2e004fffd8cd1
+--xYzZY
+Content-Disposition: form-data; name="dkim"
+
+none
+--xYzZY
+Content-Disposition: form-data; name="to"
+
+space-guid-c88e8458-f51f-4610-a6e0-efb4c06e8d62@space-a1.cf-app.com
+--xYzZY
+Content-Disposition: form-data; name="html"
+
+<div dir="ltr">boom<br></div>
+--xYzZY
+Content-Disposition: form-data; name="from"
+
+Johnathon Britz <jbritz@pivotal.io>
+--xYzZY
+Content-Disposition: form-data; name="text"
+
+boom
+--xYzZY
+Content-Disposition: form-data; name="sender_ip"
+
+209.85.212.170
+--xYzZY
+Content-Disposition: form-data; name="envelope"
+
+{"to":["space-guid-c88e8458-f51f-4610-a6e0-efb4c06e8d62@space-a1.cf-app.com"],"from":"jbritz@pivotal.io"}
+--xYzZY
+Content-Disposition: form-data; name="attachments"
+
+0
+--xYzZY
+Content-Disposition: form-data; name="subject"
+
+another test
+--xYzZY
+Content-Disposition: form-data; name="charsets"
+
+{"to":"UTF-8","html":"UTF-8","subject":"UTF-8","from":"UTF-8","text":"UTF-8"}
+--xYzZY
+Content-Disposition: form-data; name="SPF"
+
+pass
+--xYzZy--
+

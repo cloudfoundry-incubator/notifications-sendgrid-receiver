@@ -20,9 +20,11 @@ func FakeOAuth() (token string) {
 
 type FakeRequestBuilder struct {
     Request *http.Request
+    Params  map[string]string
 }
 
 func (fake *FakeRequestBuilder) Build(params map[string]string, accessToken string) (*http.Request, error) {
+    fake.Params = params
     request, err := http.NewRequest("POST", "the host", bytes.NewBufferString(params["body"]))
     if err != nil {
         panic(err)

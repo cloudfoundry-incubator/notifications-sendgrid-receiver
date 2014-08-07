@@ -54,18 +54,25 @@ var _ = Describe("Forward", func() {
     })
 
     Describe("ServeHTTP", func() {
-        It("sends a request built by the request builder  to the notifications service", func() {
-            writer := httptest.NewRecorder()
-            body, err := json.Marshal(map[string]string{
-                "stuff": "lol",
-            })
+        var formData string
 
+        BeforeEach(func() {
+            formData = "--xYzZy\nContent-Disposition: form-data; name=\"to\"\n\nspace-guid-the-guid-88@bananahamhock.com\n--xYzZy--\n"
+        })
+
+        It("sends a request built by the request builder to the notifications service", func() {
+            writer := httptest.NewRecorder()
+            body := []byte(formData)
             request, err := http.NewRequest("POST", "/", bytes.NewBuffer(body))
             if err != nil {
                 panic(err)
             }
 
+            request.Header.Add("Content-Type", "multipart/form-data; boundary=xYzZy")
+
             handler.ServeHTTP(writer, request)
+
+            Expect(fakeRequestBuilder.Params["to"]).To(Equal("space-guid-the-guid-88@bananahamhock.com"))
 
             Expect(fakeRequestSender.Request).To(Equal(fakeRequestBuilder.Request))
         })
