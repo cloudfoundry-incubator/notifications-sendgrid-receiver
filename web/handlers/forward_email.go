@@ -1,6 +1,8 @@
 package handlers
 
 import (
+    "bytes"
+    "fmt"
     "net/http"
 
     "github.com/cloudfoundry-incubator/notifications-sendgrid-receiver/log"
@@ -34,13 +36,16 @@ func (handler ForwardEmail) ServeHTTP(w http.ResponseWriter, req *http.Request) 
     }
 
     params := make(map[string]string)
+    log.Printf("Request Headers: ", req.Header)
 
-    log.Println("Request header: ", req.Header)
-    log.Printf("Request body: %#v", req.Body)
+    bodyBuffer := &bytes.Buffer{}
+    bodyBuffer.ReadFrom(req.Body)
+    log.Printf("Request body: %#v", bodyBuffer.String())
 
     err := req.ParseMultipartForm(8096)
     if err != nil {
-        log.PrintlnErr("Could not parse the request body as a form data")
+        fmt.Println(req.MultipartForm)
+        log.PrintlnErr("Could not parse the request body as a form data: " + err.Error())
         w.WriteHeader(http.StatusBadRequest)
         return
     }
