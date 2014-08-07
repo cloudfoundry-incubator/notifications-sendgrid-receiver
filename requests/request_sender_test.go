@@ -56,21 +56,6 @@ var _ = Describe("RequestSender", func() {
             })
         })
 
-        Context("when the notifications responds with a 404", func() {
-
-            BeforeEach(func() {
-                sender.MakeRequest = func(req *http.Request) (*http.Response, error) {
-                    return &http.Response{
-                        StatusCode: 404,
-                    }, nil
-                }
-            })
-
-            XIt("whut should we do when notifications 404s stevenson?", func() {
-
-            })
-        })
-
         Context("when the notifications responds with any other non successful error", func() {
             BeforeEach(func() {
                 sender.MakeRequest = func(req *http.Request) (*http.Response, error) {

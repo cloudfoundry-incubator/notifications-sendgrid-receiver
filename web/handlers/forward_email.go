@@ -3,7 +3,6 @@ package handlers
 import (
     "net/http"
 
-    "github.com/cloudfoundry-incubator/notifications-sendgrid-receiver/config"
     "github.com/cloudfoundry-incubator/notifications-sendgrid-receiver/log"
     "github.com/cloudfoundry-incubator/notifications-sendgrid-receiver/requests"
     "github.com/cloudfoundry-incubator/notifications-sendgrid-receiver/uaa"
@@ -12,43 +11,63 @@ import (
 type ForwardEmail struct {
     requestBuilder requests.RequestBuilderInterface
     requestSender  requests.RequestSenderInterface
+    uaaClient      uaa.UAAClientInterface
 }
 
 func NewForwardEmail(requestBuilder requests.RequestBuilderInterface,
-    requestSender requests.RequestSenderInterface) ForwardEmail {
+    requestSender requests.RequestSenderInterface,
+    uaa uaa.UAAClientInterface) ForwardEmail {
 
     return ForwardEmail{
         requestBuilder: requestBuilder,
         requestSender:  requestSender,
+        uaaClient:      uaa,
     }
 }
 
 func (handler ForwardEmail) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-    if req.Body != nil {
-        params := make(map[string]string)
+    if req.Body == nil {
 
-        log.Println("Sendgrid request header: ", req.Header)
-        log.Printf("The body of the post: %#v", req.Body)
-
-        err := req.ParseMultipartForm(8096)
-        if err != nil {
-            panic(err)
-        }
-
-        params["to"] = req.MultipartForm.Value["to"][0]
-        params["text"] = "Eventually the text from the sendgrid post..."
-
-        env := config.NewEnvironment()
-        uaa := uaa.NewUAAClient(env)
-
-        request, err := handler.requestBuilder.Build(params, uaa.AccessToken())
-
-        if err != nil {
-            log.PrintlnErr("Panicking with error: " + err.Error())
-            panic(err) // TODO HANDLE THE ERROR CORRECTLY
-        }
-        handler.requestSender.Send(request)
+        w.WriteHeader(http.StatusBadRequest)
+        w.Write([]byte(`{}`))
+        return
     }
+
+    params := make(map[string]string)
+
+    log.Println("Request header: ", req.Header)
+    log.Printf("Request body: %#v", req.Body)
+
+    err := req.ParseMultipartForm(8096)
+    if err != nil {
+        log.PrintlnErr("Could not parse the request body as a form data")
+        w.WriteHeader(http.StatusBadRequest)
+        return
+    }
+
+    if len(req.MultipartForm.Value["to"]) == 0 {
+        log.PrintlnErr("Could not parse a to field out of the form data")
+        w.WriteHeader(http.StatusBadRequest)
+        return
+    }
+    params["to"] = req.MultipartForm.Value["to"][0]
+    params["text"] = "Eventually the text from the sendgrid post..."
+
+    accessToken, err := handler.uaaClient.AccessToken()
+    if err != nil {
+        log.PrintlnErr("UAA returned an error: " + err.Error())
+        w.WriteHeader(http.StatusServiceUnavailable)
+        return
+    }
+
+    request, err := handler.requestBuilder.Build(params, accessToken)
+
+    if err != nil {
+        log.PrintlnErr("Build request failed with error: " + err.Error())
+        w.WriteHeader(http.StatusServiceUnavailable)
+        return
+    }
+    handler.requestSender.Send(request)
 
     w.WriteHeader(http.StatusOK)
     w.Write([]byte(`{}`))

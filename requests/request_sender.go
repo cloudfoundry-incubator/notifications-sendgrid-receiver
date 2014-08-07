@@ -42,8 +42,6 @@ func (sender RequestSender) Send(req *http.Request) error {
     response, err := sender.MakeRequest(req)
     log.Println("Outgoing request to notification-service:", req)
     if err != nil {
-        //TODO: eliminate this print
-        log.PrintlnErr("Request to Notification server failed: " + err.Error())
         return NewNotificationRequestFailed(err.Error())
     }
 

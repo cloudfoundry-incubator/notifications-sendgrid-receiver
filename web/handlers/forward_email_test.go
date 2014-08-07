@@ -2,10 +2,8 @@ package handlers_test
 
 import (
     "bytes"
-    "encoding/json"
     "net/http"
     "net/http/httptest"
-    "os"
 
     "github.com/cloudfoundry-incubator/notifications-sendgrid-receiver/web/handlers"
 
@@ -15,42 +13,12 @@ import (
 
 var _ = Describe("Forward", func() {
     var handler handlers.ForwardEmail
-    var fakeUAAServer *httptest.Server
     var fakeRequestBuilder FakeRequestBuilder
     var fakeRequestSender FakeRequestSender
+    var fakeUAA FakeUAAClient
 
     BeforeEach(func() {
-        fakeUAAServer = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-            response := map[string]string{
-                "access_token": "fakeAuthToken",
-            }
-            responseBody, err := json.Marshal(response)
-            if err != nil {
-                panic(err)
-            }
-            w.Write(responseBody)
-        }))
-
-        err := os.Setenv("UAA_HOST", fakeUAAServer.URL)
-        if err != nil {
-            panic(err)
-        }
-
-        err = os.Setenv("UAA_CLIENT_ID", "fake_client_id")
-        if err != nil {
-            panic(err)
-        }
-
-        err = os.Setenv("UAA_CLIENT_SECRET", "fake_client_secret")
-        if err != nil {
-            panic(err)
-        }
-
-        handler = handlers.NewForwardEmail(&fakeRequestBuilder, &fakeRequestSender)
-    })
-
-    AfterEach(func() {
-        defer fakeUAAServer.Close()
+        handler = handlers.NewForwardEmail(&fakeRequestBuilder, &fakeRequestSender, &fakeUAA)
     })
 
     Describe("ServeHTTP", func() {
@@ -73,7 +41,6 @@ var _ = Describe("Forward", func() {
             handler.ServeHTTP(writer, request)
 
             Expect(fakeRequestBuilder.Params["to"]).To(Equal("space-guid-the-guid-88@bananahamhock.com"))
-
             Expect(fakeRequestSender.Request).To(Equal(fakeRequestBuilder.Request))
         })
 
@@ -82,6 +49,23 @@ var _ = Describe("Forward", func() {
 
             It("returns a 200 response code and an empty JSON body", func() {
                 writer := httptest.NewRecorder()
+                body := []byte(formData)
+                request, err := http.NewRequest("POST", "/", bytes.NewBuffer(body))
+                if err != nil {
+                    panic(err)
+                }
+
+                request.Header.Add("Content-Type", "multipart/form-data; boundary=xYzZy")
+                handler.ServeHTTP(writer, request)
+
+                Expect(writer.Code).To(Equal(http.StatusOK))
+                Expect(writer.Body.String()).To(Equal("{}"))
+            })
+        })
+
+        Context("when no post body is passed", func() {
+            It("sets the status code to 400", func() {
+                writer := httptest.NewRecorder()
                 request, err := http.NewRequest("POST", "/", nil)
                 if err != nil {
                     panic(err)
@@ -89,8 +73,75 @@ var _ = Describe("Forward", func() {
 
                 handler.ServeHTTP(writer, request)
 
-                Expect(writer.Code).To(Equal(http.StatusOK))
-                Expect(writer.Body.String()).To(Equal("{}"))
+                Expect(writer.Code).To(Equal(http.StatusBadRequest))
+            })
+        })
+
+        Context("when the to parameter is missing from the post body", func() {
+            It("sets the status code to 400", func() {
+                writer := httptest.NewRecorder()
+                body := []byte("--xYzZy\nContent-Disposition: form-data; name=\"not-to\"\n\nspace-guid-the-guid-88@bananahamhock.com\n--xYzZy--\n")
+                request, err := http.NewRequest("POST", "/", bytes.NewBuffer(body))
+                if err != nil {
+                    panic(err)
+                }
+
+                request.Header.Add("Content-Type", "multipart/form-data; boundary=xYzZy")
+                handler.ServeHTTP(writer, request)
+
+                Expect(writer.Code).To(Equal(http.StatusBadRequest))
+            })
+        })
+
+        Context("when the multipart data cannot be parsed", func() {
+            It("sets the status code to 400", func() {
+                writer := httptest.NewRecorder()
+                body := []byte("not a valid multipart")
+                request, err := http.NewRequest("POST", "/", bytes.NewBuffer(body))
+                if err != nil {
+                    panic(err)
+                }
+
+                request.Header.Add("Content-Type", "multipart/form-data; boundary=xYzZy")
+                handler.ServeHTTP(writer, request)
+
+                Expect(writer.Code).To(Equal(http.StatusBadRequest))
+            })
+        })
+
+        Context("when the request builder responds with an error", func() {
+            It("sets the status code to 503", func() {
+                fakeRequestBuilder.ErrorAlways = true
+
+                writer := httptest.NewRecorder()
+                body := []byte(formData)
+                request, err := http.NewRequest("POST", "/", bytes.NewBuffer(body))
+                if err != nil {
+                    panic(err)
+                }
+
+                request.Header.Add("Content-Type", "multipart/form-data; boundary=xYzZy")
+                handler.ServeHTTP(writer, request)
+
+                Expect(writer.Code).To(Equal(http.StatusServiceUnavailable))
+            })
+        })
+
+        Context("when uaa is down", func() {
+            It("sets the status code to 503", func() {
+                fakeUAA.ErrorAlways = true
+
+                writer := httptest.NewRecorder()
+                body := []byte(formData)
+                request, err := http.NewRequest("POST", "/", bytes.NewBuffer(body))
+                if err != nil {
+                    panic(err)
+                }
+
+                request.Header.Add("Content-Type", "multipart/form-data; boundary=xYzZy")
+                handler.ServeHTTP(writer, request)
+
+                Expect(writer.Code).To(Equal(http.StatusServiceUnavailable))
             })
         })
     })

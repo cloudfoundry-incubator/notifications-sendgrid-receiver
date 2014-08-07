@@ -10,7 +10,7 @@ type UAAClient struct {
 }
 
 type UAAClientInterface interface {
-    AccessToken() string
+    AccessToken() (string, error)
 }
 
 func NewUAAClient(env config.Environment) UAAClient {
@@ -22,15 +22,11 @@ func NewUAAClient(env config.Environment) UAAClient {
     }
 }
 
-func (client UAAClient) retrieveUAAClientToken() uaa_lib.Token {
-    token, err := client.auth.GetClientToken()
-    if err != nil {
-        panic(err)
-    }
-    return token
+func (client UAAClient) retrieveUAAClientToken() (uaa_lib.Token, error) {
+    return client.auth.GetClientToken()
 }
 
-func (client UAAClient) AccessToken() string {
-    token := client.retrieveUAAClientToken()
-    return token.Access
+func (client UAAClient) AccessToken() (string, error) {
+    token, err := client.retrieveUAAClientToken()
+    return token.Access, err
 }

@@ -1,8 +1,8 @@
 #! /usr/bin/env bash
 set -e
 
-export UAA_CLIENT_ID=notifications
-export UAA_CLIENT_SECRET=secret
+export UAA_CLIENT_ID=fake_client_id
+export UAA_CLIENT_SECRET=fake_client_secret
 export UAA_HOST=http://uaa.example.com
 export CC_HOST=https://api.example.com
 export ROOT_PATH=$HOME/workspace/go/src/github.com/cloudfoundry-incubator/notifications-sendgrid-receiver
