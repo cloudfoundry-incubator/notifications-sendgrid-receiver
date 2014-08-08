@@ -1,8 +1,6 @@
 package handlers
 
 import (
-    "bytes"
-    "fmt"
     "net/http"
 
     "github.com/cloudfoundry-incubator/notifications-sendgrid-receiver/log"
@@ -11,52 +9,37 @@ import (
 )
 
 type ForwardEmail struct {
-    requestBuilder requests.RequestBuilderInterface
-    requestSender  requests.RequestSenderInterface
-    uaaClient      uaa.UAAClientInterface
+    requestBuilder    requests.RequestBuilderInterface
+    requestSender     requests.RequestSenderInterface
+    uaaClient         uaa.UAAClientInterface
+    requestBodyParser requests.RequestBodyParserInterface
 }
 
 func NewForwardEmail(requestBuilder requests.RequestBuilderInterface,
     requestSender requests.RequestSenderInterface,
-    uaa uaa.UAAClientInterface) ForwardEmail {
+    uaa uaa.UAAClientInterface,
+    requestBodyParser requests.RequestBodyParserInterface) ForwardEmail {
 
     return ForwardEmail{
-        requestBuilder: requestBuilder,
-        requestSender:  requestSender,
-        uaaClient:      uaa,
+        requestBuilder:    requestBuilder,
+        requestSender:     requestSender,
+        uaaClient:         uaa,
+        requestBodyParser: requestBodyParser,
     }
 }
 
 func (handler ForwardEmail) ServeHTTP(w http.ResponseWriter, req *http.Request) {
     if req.Body == nil {
-
         w.WriteHeader(http.StatusBadRequest)
         w.Write([]byte(`{}`))
         return
     }
 
-    params := make(map[string]string)
-    log.Printf("Request Headers: ", req.Header)
-
-    bodyBuffer := &bytes.Buffer{}
-    bodyBuffer.ReadFrom(req.Body)
-    log.Printf("Request body: %#v", bodyBuffer.String())
-
-    err := req.ParseMultipartForm(8096)
+    params, err := handler.requestBodyParser.Parse(req)
     if err != nil {
-        fmt.Println(req.MultipartForm)
-        log.PrintlnErr("Could not parse the request body as a form data: " + err.Error())
+        log.PrintlnErr(err.Error())
         w.WriteHeader(http.StatusBadRequest)
-        return
     }
-
-    if len(req.MultipartForm.Value["to"]) == 0 {
-        log.PrintlnErr("Could not parse a to field out of the form data")
-        w.WriteHeader(http.StatusBadRequest)
-        return
-    }
-    params["to"] = req.MultipartForm.Value["to"][0]
-    params["text"] = "Eventually the text from the sendgrid post..."
 
     accessToken, err := handler.uaaClient.AccessToken()
     if err != nil {

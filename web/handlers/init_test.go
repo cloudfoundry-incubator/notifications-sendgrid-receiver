@@ -58,3 +58,15 @@ func (fake *FakeUAAClient) AccessToken() (string, error) {
     }
     return "the-access-token", nil
 }
+
+type FakeRequestBodyParser struct {
+    ErrorAlways bool
+    Params      map[string]string
+}
+
+func (fake *FakeRequestBodyParser) Parse(req *http.Request) (map[string]string, error) {
+    if fake.ErrorAlways {
+        return fake.Params, errors.New("an error occured")
+    }
+    return fake.Params, nil
+}

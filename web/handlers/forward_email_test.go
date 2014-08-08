@@ -16,9 +16,15 @@ var _ = Describe("Forward", func() {
     var fakeRequestBuilder FakeRequestBuilder
     var fakeRequestSender FakeRequestSender
     var fakeUAA FakeUAAClient
+    var fakeBodyParser FakeRequestBodyParser
 
     BeforeEach(func() {
-        handler = handlers.NewForwardEmail(&fakeRequestBuilder, &fakeRequestSender, &fakeUAA)
+        handler = handlers.NewForwardEmail(&fakeRequestBuilder, &fakeRequestSender, &fakeUAA, &fakeBodyParser)
+    })
+
+    AfterEach(func() {
+        fakeBodyParser.ErrorAlways = false
+        fakeRequestBuilder.ErrorAlways = false
     })
 
     Describe("ServeHTTP", func() {
@@ -26,6 +32,8 @@ var _ = Describe("Forward", func() {
 
         BeforeEach(func() {
             formData = "--xYzZy\nContent-Disposition: form-data; name=\"to\"\n\nspace-guid-the-guid-88@bananahamhock.com\n--xYzZy--\n"
+            fakeBodyParser.Params = make(map[string]string)
+            fakeBodyParser.Params["to"] = "space-guid-the-guid-88@bananahamhock.com"
         })
 
         It("sends a request built by the request builder to the notifications service", func() {
@@ -45,8 +53,6 @@ var _ = Describe("Forward", func() {
         })
 
         Context("when notifications responds with a success", func() {
-            // TODO test that we hit UAA for access token
-
             It("returns a 200 response code and an empty JSON body", func() {
                 writer := httptest.NewRecorder()
                 body := []byte(formData)
@@ -77,32 +83,17 @@ var _ = Describe("Forward", func() {
             })
         })
 
-        Context("when the to parameter is missing from the post body", func() {
+        Context("when the body parser returns an error", func() {
             It("sets the status code to 400", func() {
+                fakeBodyParser.ErrorAlways = true
+
                 writer := httptest.NewRecorder()
-                body := []byte("--xYzZy\nContent-Disposition: form-data; name=\"not-to\"\n\nspace-guid-the-guid-88@bananahamhock.com\n--xYzZy--\n")
+                body := []byte(formData)
                 request, err := http.NewRequest("POST", "/", bytes.NewBuffer(body))
                 if err != nil {
                     panic(err)
                 }
 
-                request.Header.Add("Content-Type", "multipart/form-data; boundary=xYzZy")
-                handler.ServeHTTP(writer, request)
-
-                Expect(writer.Code).To(Equal(http.StatusBadRequest))
-            })
-        })
-
-        Context("when the multipart data cannot be parsed", func() {
-            It("sets the status code to 400", func() {
-                writer := httptest.NewRecorder()
-                body := []byte("not a valid multipart")
-                request, err := http.NewRequest("POST", "/", bytes.NewBuffer(body))
-                if err != nil {
-                    panic(err)
-                }
-
-                request.Header.Add("Content-Type", "multipart/form-data; boundary=xYzZy")
                 handler.ServeHTTP(writer, request)
 
                 Expect(writer.Code).To(Equal(http.StatusBadRequest))
