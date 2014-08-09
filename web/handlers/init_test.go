@@ -2,10 +2,12 @@ package handlers_test
 
 import (
     "bytes"
+    "encoding/json"
     "errors"
     "net/http"
     "testing"
 
+    "github.com/cloudfoundry-incubator/notifications-sendgrid-receiver/requests"
     . "github.com/onsi/ginkgo"
     . "github.com/onsi/gomega"
 )
@@ -25,12 +27,20 @@ type FakeRequestBuilder struct {
     ErrorAlways bool
 }
 
-func (fake *FakeRequestBuilder) Build(params map[string]string, accessToken string) (*http.Request, error) {
+func (fake *FakeRequestBuilder) Build(params requests.RequestParams, accessToken string) (*http.Request, error) {
     if fake.ErrorAlways {
         return &http.Request{}, errors.New("Fake Request Builder Error")
     }
-    fake.Params = params
-    request, err := http.NewRequest("POST", "the host", bytes.NewBufferString(params["body"]))
+    fake.Params = map[string]string{}
+
+    fake.Params["to"] = params.To
+
+    jsonBody, err := json.Marshal(fake.Params)
+    if err != nil {
+        return &http.Request{}, err
+    }
+
+    request, err := http.NewRequest("POST", "the host", bytes.NewBufferString(string(jsonBody)))
     if err != nil {
         panic(err)
     }
@@ -61,10 +71,10 @@ func (fake *FakeUAAClient) AccessToken() (string, error) {
 
 type FakeRequestBodyParser struct {
     ErrorAlways bool
-    Params      map[string]string
+    Params      requests.RequestParams
 }
 
-func (fake *FakeRequestBodyParser) Parse(req *http.Request) (map[string]string, error) {
+func (fake *FakeRequestBodyParser) Parse(req *http.Request) (requests.RequestParams, error) {
     if fake.ErrorAlways {
         return fake.Params, errors.New("an error occured")
     }

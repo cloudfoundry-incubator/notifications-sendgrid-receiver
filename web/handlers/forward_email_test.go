@@ -5,6 +5,7 @@ import (
     "net/http"
     "net/http/httptest"
 
+    "github.com/cloudfoundry-incubator/notifications-sendgrid-receiver/requests"
     "github.com/cloudfoundry-incubator/notifications-sendgrid-receiver/web/handlers"
 
     . "github.com/onsi/ginkgo"
@@ -32,8 +33,8 @@ var _ = Describe("Forward", func() {
 
         BeforeEach(func() {
             formData = "--xYzZy\nContent-Disposition: form-data; name=\"to\"\n\nspace-guid-the-guid-88@bananahamhock.com\n--xYzZy--\n"
-            fakeBodyParser.Params = make(map[string]string)
-            fakeBodyParser.Params["to"] = "space-guid-the-guid-88@bananahamhock.com"
+            fakeBodyParser.Params = requests.RequestParams{}
+            fakeBodyParser.Params.To = "space-guid-the-guid-88@bananahamhock.com"
         })
 
         It("sends a request built by the request builder to the notifications service", func() {
