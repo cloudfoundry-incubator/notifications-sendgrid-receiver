@@ -2,6 +2,7 @@ package requests
 
 import (
     "fmt"
+    "io/ioutil"
     "net/http"
 
     "github.com/cloudfoundry-incubator/notifications-sendgrid-receiver/log"
@@ -43,6 +44,11 @@ func (sender RequestSender) Send(req *http.Request) error {
     log.Println("Outgoing request to notification-service:", req)
     if err != nil {
         return NewNotificationRequestFailed(err.Error())
+    }
+
+    if response.Body != nil {
+        errorMessage, _ := ioutil.ReadAll(response.Body)
+        log.Printf("notifications response body: %s", string(errorMessage))
     }
 
     log.Printf("notifications response code: %d", response.StatusCode)

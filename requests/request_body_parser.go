@@ -58,7 +58,7 @@ func (parser RequestBodyParser) Parse(req *http.Request) (RequestParams, error) 
         params.ReplyTo = req.MultipartForm.Value["reply-to"][0]
     }
 
-    regex := regexp.MustCompile("@(.*)")
+    regex := regexp.MustCompile("@(.*[^>])")
     if len(regex.FindStringSubmatch(params.ReplyTo)) > 0 {
         params.Kind = regex.FindStringSubmatch(params.ReplyTo)[1]
     }
