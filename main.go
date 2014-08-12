@@ -21,8 +21,6 @@ func main() {
 func configure(env config.Environment) {
     log.Println("Booting with configuration:")
     log.Printf("\tUAAHost                 -> %+v", env.UAAHost)
-    //log.Printf("\tUAAClientID             -> %+v", env.UAAClientID)
-    //log.Printf("\tUAAClientSecret         -> %+v", env.UAAClientSecret)
     log.Printf("\tCCHost                  -> %+v", env.CCHost)
     log.Printf("\tVerifySSL               -> %+v", env.VerifySSL)
     log.Printf("\tNotificationsHost       -> %+v", env.NotificationsHost)
