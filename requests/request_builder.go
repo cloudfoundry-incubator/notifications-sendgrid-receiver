@@ -31,9 +31,7 @@ func (builder RequestBuilder) Build(params RequestParams, accessToken string) (*
 
     body := make(map[string]string)
     body["kind"] = params.Kind
-    body["from"] = params.From
-    body["replyTo"] = params.ReplyTo
-    body["to"] = params.To
+    body["reply_to"] = params.ReplyTo
     body["subject"] = params.Subject
     body["text"] = params.Text
     body["html"] = params.HTML

@@ -21,9 +21,13 @@ var _ = Describe("Request Builder", func() {
 
     BeforeEach(func() {
         params = requests.RequestParams{}
-        params.To = "space-guid-mammoth1-banana2-damage3@example.com"
-        params.Text = "the text of the email"
         params.Kind = "bananapanic.com"
+        params.From = "thisperson@example.com"
+        params.ReplyTo = "dog@example.com"
+        params.To = "space-guid-mammoth1-banana2-damage3@example.com"
+        params.Subject = "Hamhock"
+        params.Text = "the text of the email"
+        params.HTML = "the html of the email"
         env = config.NewEnvironment()
 
         request, err = builder.Build(params, "the-access-token")
@@ -63,7 +67,10 @@ var _ = Describe("Request Builder", func() {
             panic(err)
         }
 
-        Expect(jsonBody["text"]).To(Equal("the text of the email"))
         Expect(jsonBody["kind"]).To(Equal("bananapanic.com"))
+        Expect(jsonBody["reply_to"]).To(Equal("dog@example.com"))
+        Expect(jsonBody["subject"]).To(Equal("Hamhock"))
+        Expect(jsonBody["text"]).To(Equal("the text of the email"))
+        Expect(jsonBody["html"]).To(Equal("the html of the email"))
     })
 })
