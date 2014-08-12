@@ -16,7 +16,6 @@ var _ = Describe("Environment", func() {
         "UAA_CLIENT_SECRET":   os.Getenv("UAA_CLIENT_SECRET"),
         "CC_HOST":             os.Getenv("CC_HOST"),
         "VERIFY_SSL":          os.Getenv("VERIFY_SSL"),
-        "ROOT_PATH":           os.Getenv("ROOT_PATH"),
         "NOTIFICATIONS_HOST":  os.Getenv("NOTIFICATIONS_HOST"),
         "BASIC_AUTH_USERNAME": os.Getenv("BASIC_AUTH_USERNAME"),
         "BASIC_AUTH_PASSWORD": os.Getenv("BASIC_AUTH_PASSWORD"),
