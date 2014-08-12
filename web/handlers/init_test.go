@@ -80,3 +80,14 @@ func (fake *FakeRequestBodyParser) Parse(req *http.Request) (requests.RequestPar
     }
     return fake.Params, nil
 }
+
+type FakeBasicAuthenticator struct {
+    InvalidAuth bool
+}
+
+func (fake FakeBasicAuthenticator) Verify(header http.Header) bool {
+    if fake.InvalidAuth {
+        return false
+    }
+    return true
+}

@@ -9,22 +9,25 @@ import (
 )
 
 type ForwardEmail struct {
-    requestBuilder    requests.RequestBuilderInterface
-    requestSender     requests.RequestSenderInterface
-    uaaClient         uaa.UAAClientInterface
-    requestBodyParser requests.RequestBodyParserInterface
+    requestBuilder     requests.RequestBuilderInterface
+    requestSender      requests.RequestSenderInterface
+    uaaClient          uaa.UAAClientInterface
+    requestBodyParser  requests.RequestBodyParserInterface
+    basicAuthenticator requests.BasicAuthenticatorInterface
 }
 
 func NewForwardEmail(requestBuilder requests.RequestBuilderInterface,
     requestSender requests.RequestSenderInterface,
     uaa uaa.UAAClientInterface,
-    requestBodyParser requests.RequestBodyParserInterface) ForwardEmail {
+    requestBodyParser requests.RequestBodyParserInterface,
+    basicAuthenticator requests.BasicAuthenticatorInterface) ForwardEmail {
 
     return ForwardEmail{
-        requestBuilder:    requestBuilder,
-        requestSender:     requestSender,
-        uaaClient:         uaa,
-        requestBodyParser: requestBodyParser,
+        requestBuilder:     requestBuilder,
+        requestSender:      requestSender,
+        uaaClient:          uaa,
+        requestBodyParser:  requestBodyParser,
+        basicAuthenticator: basicAuthenticator,
     }
 }
 
@@ -32,6 +35,13 @@ func (handler ForwardEmail) ServeHTTP(w http.ResponseWriter, req *http.Request) 
     if req.Body == nil {
         w.WriteHeader(http.StatusBadRequest)
         w.Write([]byte(`{}`))
+        return
+    }
+
+    authenticates := handler.basicAuthenticator.Verify(req.Header)
+    if authenticates == false {
+        log.PrintlnErr("401 StatusUnauthorized")
+        w.WriteHeader(http.StatusUnauthorized)
         return
     }
 

@@ -20,7 +20,7 @@ func NewRouter() Router {
     return Router{
         stacks: map[string]stack.Stack{
             "GET /info": stack.NewStack(handlers.NewGetInfo()),
-            "POST /":    stack.NewStack(handlers.NewForwardEmail(requests.NewRequestBuilder(), requests.NewRequestSender(), uaa.NewUAAClient(env), requests.RequestBodyParser{})),
+            "POST /":    stack.NewStack(handlers.NewForwardEmail(requests.NewRequestBuilder(), requests.NewRequestSender(), uaa.NewUAAClient(env), requests.RequestBodyParser{}, requests.NewBasicAuthenticator())),
         },
     }
 }

@@ -4,6 +4,8 @@ set -e
 export UAA_CLIENT_ID=notifications
 export UAA_CLIENT_SECRET=secret
 export UAA_HOST=http://uaa.example.com
+export BASIC_AUTH_USER_NAME=test_user
+export BASIC_AUTH_PASSWORD=password
 export CC_HOST=https://api.example.com
 export PORT=3000
 export NOTIFICATIONS_HOST=https://host.example.com

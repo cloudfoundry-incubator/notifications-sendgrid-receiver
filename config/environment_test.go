@@ -11,13 +11,15 @@ import (
 
 var _ = Describe("Environment", func() {
     variables := map[string]string{
-        "UAA_HOST":           os.Getenv("UAA_HOST"),
-        "UAA_CLIENT_ID":      os.Getenv("UAA_CLIENT_ID"),
-        "UAA_CLIENT_SECRET":  os.Getenv("UAA_CLIENT_SECRET"),
-        "CC_HOST":            os.Getenv("CC_HOST"),
-        "VERIFY_SSL":         os.Getenv("VERIFY_SSL"),
-        "ROOT_PATH":          os.Getenv("ROOT_PATH"),
-        "NOTIFICATIONS_HOST": os.Getenv("NOTIFICATIONS_HOST"),
+        "UAA_HOST":            os.Getenv("UAA_HOST"),
+        "UAA_CLIENT_ID":       os.Getenv("UAA_CLIENT_ID"),
+        "UAA_CLIENT_SECRET":   os.Getenv("UAA_CLIENT_SECRET"),
+        "CC_HOST":             os.Getenv("CC_HOST"),
+        "VERIFY_SSL":          os.Getenv("VERIFY_SSL"),
+        "ROOT_PATH":           os.Getenv("ROOT_PATH"),
+        "NOTIFICATIONS_HOST":  os.Getenv("NOTIFICATIONS_HOST"),
+        "BASIC_AUTH_USERNAME": os.Getenv("BASIC_AUTH_USERNAME"),
+        "BASIC_AUTH_PASSWORD": os.Getenv("BASIC_AUTH_PASSWORD"),
     }
 
     AfterEach(func() {
@@ -26,7 +28,7 @@ var _ = Describe("Environment", func() {
         }
     })
 
-    Describe("SpaceMailer configuration", func() {
+    Describe("Notifications configuration", func() {
         It("loads the values when they are set", func() {
             os.Setenv("NOTIFICATIONS_HOST", "https://notifications.example.com")
 
@@ -133,6 +135,18 @@ var _ = Describe("Environment", func() {
             env := config.NewEnvironment()
 
             Expect(env.VerifySSL).To(BeTrue())
+        })
+    })
+
+    Describe("Basic auth configuration", func() {
+        It("loads the username and password", func() {
+            os.Setenv("BASIC_AUTH_USER_NAME", "happy")
+            os.Setenv("BASIC_AUTH_PASSWORD", "glad")
+
+            env := config.NewEnvironment()
+
+            Expect(env.BasicAuthUserName).To(Equal("happy"))
+            Expect(env.BasicAuthPassword).To(Equal("glad"))
         })
     })
 })

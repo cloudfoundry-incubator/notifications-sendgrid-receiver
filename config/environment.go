@@ -13,6 +13,8 @@ type Environment struct {
     UAAHost           string
     UAAClientID       string
     UAAClientSecret   string
+    BasicAuthUserName string
+    BasicAuthPassword string
     CCHost            string
     Port              string
     VerifySSL         bool
@@ -25,6 +27,8 @@ func NewEnvironment() Environment {
         UAAHost:           loadOrPanic("UAA_HOST"),
         UAAClientID:       loadOrPanic("UAA_CLIENT_ID"),
         UAAClientSecret:   loadOrPanic("UAA_CLIENT_SECRET"),
+        BasicAuthUserName: loadOrPanic("BASIC_AUTH_USER_NAME"),
+        BasicAuthPassword: loadOrPanic("BASIC_AUTH_PASSWORD"),
         Port:              loadOrPanic("PORT"),
         CCHost:            loadOrPanic("CC_HOST"),
         VerifySSL:         loadBool("VERIFY_SSL", true),

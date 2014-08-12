@@ -18,9 +18,10 @@ var _ = Describe("Forward", func() {
     var fakeRequestSender FakeRequestSender
     var fakeUAA FakeUAAClient
     var fakeBodyParser FakeRequestBodyParser
+    var fakeBasicAuthenticator FakeBasicAuthenticator
 
     BeforeEach(func() {
-        handler = handlers.NewForwardEmail(&fakeRequestBuilder, &fakeRequestSender, &fakeUAA, &fakeBodyParser)
+        handler = handlers.NewForwardEmail(&fakeRequestBuilder, &fakeRequestSender, &fakeUAA, &fakeBodyParser, &fakeBasicAuthenticator)
     })
 
     AfterEach(func() {
@@ -37,6 +38,27 @@ var _ = Describe("Forward", func() {
             fakeBodyParser.Params.To = "space-guid-the-guid-88@bananahamhock.com"
         })
 
+        Context("when the basic auth header is invalid", func() {
+            BeforeEach(func() {
+                fakeBasicAuthenticator.InvalidAuth = true
+            })
+
+            AfterEach(func() {
+                fakeBasicAuthenticator.InvalidAuth = false
+            })
+
+            It("sets the status code to 401", func() {
+                writer := httptest.NewRecorder()
+                body := []byte(formData)
+                request, err := http.NewRequest("POST", "/", bytes.NewBuffer(body))
+                if err != nil {
+                    panic(err)
+                }
+                handler.ServeHTTP(writer, request)
+                Expect(writer.Code).To(Equal(http.StatusUnauthorized))
+            })
+
+        })
         It("sends a request built by the request builder to the notifications service", func() {
             writer := httptest.NewRecorder()
             body := []byte(formData)
