@@ -67,7 +67,7 @@ var _ = Describe("Request Builder", func() {
             panic(err)
         }
 
-        Expect(jsonBody["kind"]).To(Equal("bananapanic.com"))
+        Expect(jsonBody["kind_id"]).To(Equal("bananapanic.com"))
         Expect(jsonBody["reply_to"]).To(Equal("dog@example.com"))
         Expect(jsonBody["subject"]).To(Equal("Hamhock"))
         Expect(jsonBody["text"]).To(Equal("the text of the email"))

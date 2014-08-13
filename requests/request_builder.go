@@ -30,7 +30,7 @@ func (builder RequestBuilder) Build(params RequestParams, accessToken string) (*
     notificationEndpoint := env.NotificationsHost + "/spaces/" + guid
 
     body := make(map[string]string)
-    body["kind"] = params.Kind
+    body["kind_id"] = params.Kind
     body["reply_to"] = params.ReplyTo
     body["subject"] = params.Subject
     body["text"] = params.Text
