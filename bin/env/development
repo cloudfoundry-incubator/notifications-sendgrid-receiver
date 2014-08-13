@@ -1,0 +1,12 @@
+#! /usr/bin/env bash
+set -e
+
+export UAA_CLIENT_ID=notifications
+export UAA_CLIENT_SECRET=secret
+export UAA_HOST=http://uaa.10.244.0.34.xip.io
+export BASIC_AUTH_USER_NAME=username
+export BASIC_AUTH_PASSWORD=password
+export CC_HOST=https://api.10.244.0.34.xip.io
+export NOTIFICATIONS_HOST=https://notifications.10.244.0.34.xip.io
+export PORT=3000
+export VERIFY_SSL=false

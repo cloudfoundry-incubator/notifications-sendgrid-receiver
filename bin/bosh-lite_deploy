@@ -1,0 +1,22 @@
+#! /usr/bin/env bash
+set -e -x
+
+cf api api.10.244.0.34.xip.io --skip-ssl-validation
+cf auth admin admin
+cf create-org notifications
+cf target -o notifications
+cf create-space notifications
+cf target -s notifications
+
+cf push notifications-sendgrid-receiver --no-start
+
+cf set-env notifications-sendgrid-receiver UAA_HOST https://uaa.10.244.0.34.xip.io
+cf set-env notifications-sendgrid-receiver UAA_CLIENT_ID notifications-sender
+cf set-env notifications-sendgrid-receiver UAA_CLIENT_SECRET secret
+cf set-env notifications-sendgrid-receiver BASIC_AUTH_USER_NAME username
+cf set-env notifications-sendgrid-receiver BASIC_AUTH_PASSWORD password
+cf set-env notifications-sendgrid-receiver CC_HOST https://api.10.244.0.34.xip.io
+cf set-env notifications-sendgrid-receiver NOTIFICATIONS_HOST http://notifications.10.244.0.34.xip.io
+cf set-env notifications-sendgrid-receiver VERIFY_SSL false
+
+cf start notifications-sendgrid-receiver

@@ -1,4 +1,2 @@
 logs/*
-/bin/bosh-lite_deploy
 /bin/a1_deploy
-/bin/env/development
