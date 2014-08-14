@@ -4,6 +4,7 @@ import (
     "errors"
     "net/http"
     "regexp"
+    "strings"
 )
 
 type RequestBodyParserInterface interface {
@@ -52,15 +53,21 @@ func (parser RequestBodyParser) Parse(req *http.Request) (RequestParams, error) 
         params.HTML = req.MultipartForm.Value["html"][0]
     }
 
-    if len(req.MultipartForm.Value["reply-to"]) == 0 {
-        params.ReplyTo = params.From
-    } else {
-        params.ReplyTo = req.MultipartForm.Value["reply-to"][0]
+    params.ReplyTo = params.From
+
+    if len(req.MultipartForm.Value["headers"]) != 0 {
+        headers := strings.Split(req.MultipartForm.Value["headers"][0], "\n")
+        for _, value := range headers {
+            if strings.HasPrefix(value, "Reply-To: ") {
+                params.ReplyTo = strings.TrimPrefix(value, "Reply-To: ")
+            }
+        }
     }
 
     regex := regexp.MustCompile("@(.*[^>])")
     if len(regex.FindStringSubmatch(params.ReplyTo)) > 0 {
         params.Kind = regex.FindStringSubmatch(params.ReplyTo)[1]
     }
+
     return params, nil
 }
