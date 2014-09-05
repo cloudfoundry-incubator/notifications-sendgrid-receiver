@@ -33,7 +33,7 @@ type RequestSender struct {
 func NewRequestSender() RequestSender {
     return RequestSender{
         MakeRequest: func(req *http.Request) (*http.Response, error) {
-            client := http.Client{}
+            client := http.DefaultClient
             return client.Do(req)
         },
     }
