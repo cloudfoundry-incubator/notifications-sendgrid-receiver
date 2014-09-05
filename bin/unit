@@ -15,15 +15,13 @@ source $DIR/env/$ENVIRONMENT
 
 function run() {
   set +e
-  go test -v $@
+  ginkgo -randomizeAllSpecs=true -randomizeSuites=true -succinct=true $@
   EXIT_CODE=$?
   set -e
 }
 
-godep restore
-
 if [[ -z "$1" ]]; then
-    run ./...
+    run -r ./
 else
     run $@
 fi
