@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 
+	"github.com/cloudfoundry-incubator/notifications-sendgrid-receiver/fakes"
 	"github.com/cloudfoundry-incubator/notifications-sendgrid-receiver/requests"
 	"github.com/cloudfoundry-incubator/notifications-sendgrid-receiver/web/handlers"
 
@@ -14,19 +15,25 @@ import (
 
 var _ = Describe("Forward", func() {
 	var handler handlers.ForwardEmail
-	var fakeRequestBuilder FakeRequestBuilder
-	var fakeRequestSender FakeRequestSender
-	var fakeUAA FakeUAAClient
-	var fakeBodyParser FakeRequestBodyParser
-	var fakeBasicAuthenticator FakeBasicAuthenticator
+	var requestBuilder *fakes.RequestBuilder
+	var requestSender *fakes.RequestSender
+	var uaaClient *fakes.UAAClient
+	var bodyParser *fakes.RequestBodyParser
+	var basicAuthenticator *fakes.BasicAuthenticator
 
 	BeforeEach(func() {
-		handler = handlers.NewForwardEmail(&fakeRequestBuilder, &fakeRequestSender, &fakeUAA, &fakeBodyParser, &fakeBasicAuthenticator)
+		requestBuilder = fakes.NewRequestBuilder()
+		requestSender = fakes.NewRequestSender()
+		uaaClient = fakes.NewUAAClient()
+		bodyParser = fakes.NewRequestBodyParser()
+		basicAuthenticator = fakes.NewBasicAuthenticator()
+
+		handler = handlers.NewForwardEmail(requestBuilder, requestSender, uaaClient, bodyParser, basicAuthenticator)
 	})
 
 	AfterEach(func() {
-		fakeBodyParser.ErrorAlways = false
-		fakeRequestBuilder.ErrorAlways = false
+		bodyParser.ErrorAlways = false
+		requestBuilder.ErrorAlways = false
 	})
 
 	Describe("ServeHTTP", func() {
@@ -34,17 +41,17 @@ var _ = Describe("Forward", func() {
 
 		BeforeEach(func() {
 			formData = "--xYzZy\nContent-Disposition: form-data; name=\"to\"\n\nspace-guid-the-guid-88@bananahamhock.com\n--xYzZy--\n"
-			fakeBodyParser.Params = requests.RequestParams{}
-			fakeBodyParser.Params.To = "space-guid-the-guid-88@bananahamhock.com"
+			bodyParser.Params = requests.RequestParams{}
+			bodyParser.Params.To = "space-guid-the-guid-88@bananahamhock.com"
 		})
 
 		Context("when the basic auth header is invalid", func() {
 			BeforeEach(func() {
-				fakeBasicAuthenticator.InvalidAuth = true
+				basicAuthenticator.InvalidAuth = true
 			})
 
 			AfterEach(func() {
-				fakeBasicAuthenticator.InvalidAuth = false
+				basicAuthenticator.InvalidAuth = false
 			})
 
 			It("sets the status code to 401", func() {
@@ -54,11 +61,12 @@ var _ = Describe("Forward", func() {
 				if err != nil {
 					panic(err)
 				}
+
 				handler.ServeHTTP(writer, request)
 				Expect(writer.Code).To(Equal(http.StatusUnauthorized))
 			})
-
 		})
+
 		It("sends a request built by the request builder to the notifications service", func() {
 			writer := httptest.NewRecorder()
 			body := []byte(formData)
@@ -71,8 +79,8 @@ var _ = Describe("Forward", func() {
 
 			handler.ServeHTTP(writer, request)
 
-			Expect(fakeRequestBuilder.Params["to"]).To(Equal("space-guid-the-guid-88@bananahamhock.com"))
-			Expect(fakeRequestSender.Request).To(Equal(fakeRequestBuilder.Request))
+			Expect(requestBuilder.Params["to"]).To(Equal("space-guid-the-guid-88@bananahamhock.com"))
+			Expect(requestSender.Request).To(Equal(requestBuilder.Request))
 		})
 
 		Context("when notifications responds with a success", func() {
@@ -108,7 +116,7 @@ var _ = Describe("Forward", func() {
 
 		Context("when the body parser returns an error", func() {
 			It("sets the status code to 400", func() {
-				fakeBodyParser.ErrorAlways = true
+				bodyParser.ErrorAlways = true
 
 				writer := httptest.NewRecorder()
 				body := []byte(formData)
@@ -125,7 +133,7 @@ var _ = Describe("Forward", func() {
 
 		Context("when the request builder responds with an error", func() {
 			It("sets the status code to 503", func() {
-				fakeRequestBuilder.ErrorAlways = true
+				requestBuilder.ErrorAlways = true
 
 				writer := httptest.NewRecorder()
 				body := []byte(formData)
@@ -143,7 +151,7 @@ var _ = Describe("Forward", func() {
 
 		Context("when uaa is down", func() {
 			It("sets the status code to 503", func() {
-				fakeUAA.ErrorAlways = true
+				uaaClient.ErrorAlways = true
 
 				writer := httptest.NewRecorder()
 				body := []byte(formData)
