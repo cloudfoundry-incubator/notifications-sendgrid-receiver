@@ -6,7 +6,7 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/cloudfoundry-incubator/notifications-sendgrid-receiver/requests"
+	"github.com/cloudfoundry-incubator/notifications-sendgrid-receiver/web/services"
 )
 
 type RequestBuilder struct {
@@ -19,7 +19,8 @@ func NewRequestBuilder() *RequestBuilder {
 	return &RequestBuilder{}
 }
 
-func (fake *RequestBuilder) Build(params requests.RequestParams, accessToken string) (*http.Request, error) {
+func (fake *RequestBuilder) Build(paramsMap map[string]string, accessToken string) (*http.Request, error) {
+	params := services.NewRequestParamsFromMap(paramsMap)
 	if fake.ErrorAlways {
 		return &http.Request{}, errors.New("Fake Request Builder Error")
 	}

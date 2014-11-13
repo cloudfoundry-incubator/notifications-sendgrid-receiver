@@ -1,4 +1,4 @@
-package requests
+package services
 
 import (
 	"bytes"
@@ -6,28 +6,26 @@ import (
 	"errors"
 	"net/http"
 	"regexp"
-
-	"github.com/cloudfoundry-incubator/notifications-sendgrid-receiver/config"
 )
 
-type RequestBuilderInterface interface {
-	Build(RequestParams, string) (*http.Request, error)
+type RequestBuilder struct {
+	notificationsHost string
 }
 
-type RequestBuilder struct{}
-
-func NewRequestBuilder() RequestBuilder {
-	return RequestBuilder{}
+func NewRequestBuilder(notificationsHost string) RequestBuilder {
+	return RequestBuilder{
+		notificationsHost: notificationsHost,
+	}
 }
 
-func (builder RequestBuilder) Build(params RequestParams, accessToken string) (*http.Request, error) {
+func (builder RequestBuilder) Build(paramsMap map[string]string, accessToken string) (*http.Request, error) {
+	params := NewRequestParamsFromMap(paramsMap)
 	guid, err := builder.parseSpaceGuid(params.To)
 	if err != nil {
 		return &http.Request{}, err
 	}
 
-	env := config.NewEnvironment()
-	notificationEndpoint := env.NotificationsHost + "/spaces/" + guid
+	notificationEndpoint := builder.notificationsHost + "/spaces/" + guid
 
 	body := make(map[string]string)
 	body["kind_id"] = params.Kind

@@ -2,12 +2,13 @@ package handlers_test
 
 import (
 	"bytes"
+	"log"
 	"net/http"
 	"net/http/httptest"
 
 	"github.com/cloudfoundry-incubator/notifications-sendgrid-receiver/fakes"
-	"github.com/cloudfoundry-incubator/notifications-sendgrid-receiver/requests"
 	"github.com/cloudfoundry-incubator/notifications-sendgrid-receiver/web/handlers"
+	"github.com/cloudfoundry-incubator/notifications-sendgrid-receiver/web/services"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -27,8 +28,9 @@ var _ = Describe("Forward", func() {
 		uaaClient = fakes.NewUAAClient()
 		bodyParser = fakes.NewRequestBodyParser()
 		basicAuthenticator = fakes.NewBasicAuthenticator()
+		logger := log.New(bytes.NewBuffer([]byte{}), "", 0)
 
-		handler = handlers.NewForwardEmail(requestBuilder, requestSender, uaaClient, bodyParser, basicAuthenticator)
+		handler = handlers.NewForwardEmail(requestBuilder, requestSender, uaaClient, bodyParser, basicAuthenticator, logger)
 	})
 
 	AfterEach(func() {
@@ -41,7 +43,7 @@ var _ = Describe("Forward", func() {
 
 		BeforeEach(func() {
 			formData = "--xYzZy\nContent-Disposition: form-data; name=\"to\"\n\nspace-guid-the-guid-88@bananahamhock.com\n--xYzZy--\n"
-			bodyParser.Params = requests.RequestParams{}
+			bodyParser.Params = services.RequestParams{}
 			bodyParser.Params.To = "space-guid-the-guid-88@bananahamhock.com"
 		})
 
@@ -62,7 +64,7 @@ var _ = Describe("Forward", func() {
 					panic(err)
 				}
 
-				handler.ServeHTTP(writer, request)
+				handler.ServeHTTP(writer, request, nil)
 				Expect(writer.Code).To(Equal(http.StatusUnauthorized))
 			})
 		})
@@ -77,7 +79,7 @@ var _ = Describe("Forward", func() {
 
 			request.Header.Add("Content-Type", "multipart/form-data; boundary=xYzZy")
 
-			handler.ServeHTTP(writer, request)
+			handler.ServeHTTP(writer, request, nil)
 
 			Expect(requestBuilder.Params["to"]).To(Equal("space-guid-the-guid-88@bananahamhock.com"))
 			Expect(requestSender.Request).To(Equal(requestBuilder.Request))
@@ -93,7 +95,7 @@ var _ = Describe("Forward", func() {
 				}
 
 				request.Header.Add("Content-Type", "multipart/form-data; boundary=xYzZy")
-				handler.ServeHTTP(writer, request)
+				handler.ServeHTTP(writer, request, nil)
 
 				Expect(writer.Code).To(Equal(http.StatusOK))
 				Expect(writer.Body.String()).To(Equal("{}"))
@@ -108,7 +110,7 @@ var _ = Describe("Forward", func() {
 					panic(err)
 				}
 
-				handler.ServeHTTP(writer, request)
+				handler.ServeHTTP(writer, request, nil)
 
 				Expect(writer.Code).To(Equal(http.StatusBadRequest))
 			})
@@ -125,7 +127,7 @@ var _ = Describe("Forward", func() {
 					panic(err)
 				}
 
-				handler.ServeHTTP(writer, request)
+				handler.ServeHTTP(writer, request, nil)
 
 				Expect(writer.Code).To(Equal(http.StatusBadRequest))
 			})
@@ -143,7 +145,7 @@ var _ = Describe("Forward", func() {
 				}
 
 				request.Header.Add("Content-Type", "multipart/form-data; boundary=xYzZy")
-				handler.ServeHTTP(writer, request)
+				handler.ServeHTTP(writer, request, nil)
 
 				Expect(writer.Code).To(Equal(http.StatusServiceUnavailable))
 			})
@@ -161,7 +163,7 @@ var _ = Describe("Forward", func() {
 				}
 
 				request.Header.Add("Content-Type", "multipart/form-data; boundary=xYzZy")
-				handler.ServeHTTP(writer, request)
+				handler.ServeHTTP(writer, request, nil)
 
 				Expect(writer.Code).To(Equal(http.StatusServiceUnavailable))
 			})

@@ -1,10 +1,10 @@
-package requests_test
+package services_test
 
 import (
 	"bytes"
 	"net/http"
 
-	"github.com/cloudfoundry-incubator/notifications-sendgrid-receiver/requests"
+	"github.com/cloudfoundry-incubator/notifications-sendgrid-receiver/web/services"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -12,7 +12,7 @@ import (
 
 var _ = Describe("RequestBodyParser", func() {
 	var validPostBody string
-	var bodyParser requests.RequestBodyParser
+	var bodyParser services.RequestBodyParser
 	var validPostHeaderWithReplyTo, validPostBeginning, postSubject, postFrom, postFromWithBrackets, postText, postHTML, validPostEnding string
 
 	BeforeEach(func() {
@@ -37,11 +37,12 @@ var _ = Describe("RequestBodyParser", func() {
 
 		request.Header.Add("Content-Type", "multipart/form-data; boundary=xYzZy")
 
-		params, err := bodyParser.Parse(request)
+		parsedParams, err := bodyParser.Parse(request)
 		if err != nil {
 			panic(err)
 		}
 
+		params := services.NewRequestParamsFromMap(parsedParams)
 		Expect(params.To).To(Equal("space-guid-the-guid-88@bananahamhock.com"))
 		Expect(params.Subject).To(Equal("This is a great subject"))
 		Expect(params.From).To(Equal("incoming-from@example.com"))
@@ -76,11 +77,12 @@ var _ = Describe("RequestBodyParser", func() {
 
 		request.Header.Add("Content-Type", "multipart/form-data; boundary=xYzZy")
 
-		params, err := bodyParser.Parse(request)
+		paramsMap, err := bodyParser.Parse(request)
 		if err != nil {
 			panic(err)
 		}
 
+		params := services.NewRequestParamsFromMap(paramsMap)
 		Expect(params.ReplyTo).To(Equal("incoming-from@example.com"))
 	})
 
@@ -96,11 +98,12 @@ var _ = Describe("RequestBodyParser", func() {
 
 			request.Header.Add("Content-Type", "multipart/form-data; boundary=xYzZy")
 
-			params, err := bodyParser.Parse(request)
+			paramsMap, err := bodyParser.Parse(request)
 			if err != nil {
 				panic(err)
 			}
 
+			params := services.NewRequestParamsFromMap(paramsMap)
 			Expect(params.Kind).To(Equal("example.com"))
 		})
 

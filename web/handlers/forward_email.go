@@ -1,37 +1,36 @@
 package handlers
 
 import (
+	"log"
 	"net/http"
 
-	"github.com/cloudfoundry-incubator/notifications-sendgrid-receiver/log"
-	"github.com/cloudfoundry-incubator/notifications-sendgrid-receiver/requests"
-	"github.com/cloudfoundry-incubator/notifications-sendgrid-receiver/uaa"
+	"github.com/ryanmoran/stack"
 )
 
 type ForwardEmail struct {
-	requestBuilder     requests.RequestBuilderInterface
-	requestSender      requests.RequestSenderInterface
-	uaaClient          uaa.UAAClientInterface
-	requestBodyParser  requests.RequestBodyParserInterface
-	basicAuthenticator requests.BasicAuthenticatorInterface
+	requestBuilder     RequestBuilderInterface
+	requestSender      RequestSenderInterface
+	uaaClient          UAAClientInterface
+	requestBodyParser  RequestBodyParserInterface
+	basicAuthenticator BasicAuthenticatorInterface
+	logger             *log.Logger
 }
 
-func NewForwardEmail(requestBuilder requests.RequestBuilderInterface,
-	requestSender requests.RequestSenderInterface,
-	uaa uaa.UAAClientInterface,
-	requestBodyParser requests.RequestBodyParserInterface,
-	basicAuthenticator requests.BasicAuthenticatorInterface) ForwardEmail {
+func NewForwardEmail(requestBuilder RequestBuilderInterface, requestSender RequestSenderInterface,
+	uaaClient UAAClientInterface, requestBodyParser RequestBodyParserInterface,
+	basicAuthenticator BasicAuthenticatorInterface, logger *log.Logger) ForwardEmail {
 
 	return ForwardEmail{
 		requestBuilder:     requestBuilder,
 		requestSender:      requestSender,
-		uaaClient:          uaa,
+		uaaClient:          uaaClient,
 		requestBodyParser:  requestBodyParser,
 		basicAuthenticator: basicAuthenticator,
+		logger:             logger,
 	}
 }
 
-func (handler ForwardEmail) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+func (handler ForwardEmail) ServeHTTP(w http.ResponseWriter, req *http.Request, context stack.Context) {
 	if req.Body == nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(`{}`))
@@ -40,28 +39,27 @@ func (handler ForwardEmail) ServeHTTP(w http.ResponseWriter, req *http.Request) 
 
 	authenticates := handler.basicAuthenticator.Verify(req.Header)
 	if authenticates == false {
-		log.PrintlnErr("401 StatusUnauthorized")
+		handler.logger.Println("401 Unauthorized")
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
 	params, err := handler.requestBodyParser.Parse(req)
 	if err != nil {
-		log.PrintlnErr(err.Error())
+		handler.logger.Println(err.Error())
 		w.WriteHeader(http.StatusBadRequest)
 	}
 
-	accessToken, err := handler.uaaClient.AccessToken()
+	token, err := handler.uaaClient.GetClientToken()
 	if err != nil {
-		log.PrintlnErr("UAA returned an error: " + err.Error())
+		handler.logger.Println("UAA returned an error: " + err.Error())
 		w.WriteHeader(http.StatusServiceUnavailable)
 		return
 	}
 
-	request, err := handler.requestBuilder.Build(params, accessToken)
-
+	request, err := handler.requestBuilder.Build(params, token.Access)
 	if err != nil {
-		log.PrintlnErr("Build request failed with error: " + err.Error())
+		handler.logger.Println("Build request failed with error: " + err.Error())
 		w.WriteHeader(http.StatusServiceUnavailable)
 		return
 	}

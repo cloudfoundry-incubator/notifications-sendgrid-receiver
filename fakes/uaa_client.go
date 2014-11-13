@@ -1,6 +1,10 @@
 package fakes
 
-import "errors"
+import (
+	"errors"
+
+	"github.com/pivotal-cf/uaa-sso-golang/uaa"
+)
 
 type UAAClient struct {
 	ErrorAlways bool
@@ -10,9 +14,9 @@ func NewUAAClient() *UAAClient {
 	return &UAAClient{}
 }
 
-func (fake *UAAClient) AccessToken() (string, error) {
+func (fake *UAAClient) GetClientToken() (uaa.Token, error) {
 	if fake.ErrorAlways {
-		return "", errors.New("you done goofed")
+		return uaa.Token{}, errors.New("you done goofed")
 	}
-	return "the-access-token", nil
+	return uaa.Token{Access: "the-access-token"}, nil
 }

@@ -1,12 +1,11 @@
-package requests_test
+package services_test
 
 import (
 	"bytes"
 	"encoding/json"
 	"net/http"
 
-	"github.com/cloudfoundry-incubator/notifications-sendgrid-receiver/config"
-	"github.com/cloudfoundry-incubator/notifications-sendgrid-receiver/requests"
+	"github.com/cloudfoundry-incubator/notifications-sendgrid-receiver/web/services"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -15,22 +14,25 @@ import (
 var _ = Describe("Request Builder", func() {
 	var request *http.Request
 	var err error
-	var builder requests.RequestBuilder
-	var params requests.RequestParams
-	var env config.Environment
+	var builder services.RequestBuilder
+	var params services.RequestParams
+	var notificationsHost string
 
 	BeforeEach(func() {
-		params = requests.RequestParams{}
-		params.Kind = "bananapanic.com"
-		params.From = "thisperson@example.com"
-		params.ReplyTo = "dog@example.com"
-		params.To = "space-guid-mammoth1-banana2-damage3@example.com"
-		params.Subject = "Hamhock"
-		params.Text = "the text of the email"
-		params.HTML = "the html of the email"
-		env = config.NewEnvironment()
+		params = services.RequestParams{
+			Kind:    "bananapanic.com",
+			From:    "thisperson@example.com",
+			ReplyTo: "dog@example.com",
+			To:      "space-guid-mammoth1-banana2-damage3@example.com",
+			Subject: "Hamhock",
+			Text:    "the text of the email",
+			HTML:    "the html of the email",
+		}
 
-		request, err = builder.Build(params, "the-access-token")
+		notificationsHost = "notifications.example.com"
+		builder = services.NewRequestBuilder(notificationsHost)
+
+		request, err = builder.Build(params.ToMap(), "the-access-token")
 		if err != nil {
 			panic(err)
 		}
@@ -39,7 +41,7 @@ var _ = Describe("Request Builder", func() {
 	Context("when the space guid cannot be parsed", func() {
 		It("returns an error", func() {
 			params.To = "fake-banHammer-____&&&989867.com"
-			_, err := builder.Build(params, "the-access-token")
+			_, err := builder.Build(params.ToMap(), "the-access-token")
 			Expect(err).ToNot(BeNil())
 			Expect(err.Error()).To(Equal("Invalid params - unable to parse guid"))
 		})
@@ -48,7 +50,7 @@ var _ = Describe("Request Builder", func() {
 	Context("when the space guid can be parsed", func() {
 		It("returns a post request to the appropriate endpoint", func() {
 			Expect(request.Method).To(Equal("POST"))
-			Expect(request.URL.String()).To(Equal(env.NotificationsHost + "/spaces/mammoth1-banana2-damage3"))
+			Expect(request.URL.String()).To(Equal(notificationsHost + "/spaces/mammoth1-banana2-damage3"))
 		})
 	})
 

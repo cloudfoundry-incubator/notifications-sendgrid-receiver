@@ -34,7 +34,11 @@
 		},
 		{
 			"ImportPath": "github.com/ryanmoran/stack",
-			"Rev": "d49bfd8194ebe89813efccde7de6f4d7b0751df5"
+			"Rev": "f8a41c326f8a909b8a37f895c3fee0329aa35200"
+		},
+		{
+			"ImportPath": "github.com/ryanmoran/viron",
+			"Rev": "6cbd3ee795ba02bece4493faec283ca52fe86415"
 		}
 	]
 }

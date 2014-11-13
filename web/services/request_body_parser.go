@@ -1,4 +1,4 @@
-package requests
+package services
 
 import (
 	"errors"
@@ -7,32 +7,22 @@ import (
 	"strings"
 )
 
-type RequestBodyParserInterface interface {
-	Parse(*http.Request) (RequestParams, error)
+type RequestBodyParser struct{}
+
+func NewRequestBodyParser() RequestBodyParser {
+	return RequestBodyParser{}
 }
 
-type RequestBodyParser struct {
-}
-
-type RequestParams struct {
-	To      string
-	Subject string
-	From    string
-	ReplyTo string
-	Text    string
-	HTML    string
-	Kind    string
-}
-
-func (parser RequestBodyParser) Parse(req *http.Request) (RequestParams, error) {
+func (parser RequestBodyParser) Parse(req *http.Request) (map[string]string, error) {
 	params := RequestParams{}
+
 	err := req.ParseMultipartForm(8096)
 	if err != nil {
-		return RequestParams{}, errors.New("Could not parse the request body as a form data: " + err.Error())
+		return map[string]string{}, errors.New("Could not parse the request body as a form data: " + err.Error())
 	}
 
 	if len(req.MultipartForm.Value["to"]) == 0 {
-		return RequestParams{}, errors.New("Could not parse a to field out of the form data")
+		return map[string]string{}, errors.New("Could not parse a to field out of the form data")
 	}
 
 	params.To = req.MultipartForm.Value["to"][0]
@@ -69,5 +59,5 @@ func (parser RequestBodyParser) Parse(req *http.Request) (RequestParams, error) 
 		params.Kind = regex.FindStringSubmatch(params.ReplyTo)[1]
 	}
 
-	return params, nil
+	return params.ToMap(), nil
 }

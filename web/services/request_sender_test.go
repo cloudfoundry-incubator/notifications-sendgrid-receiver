@@ -1,10 +1,12 @@
-package requests_test
+package services_test
 
 import (
+	"bytes"
 	"errors"
+	"log"
 	"net/http"
 
-	"github.com/cloudfoundry-incubator/notifications-sendgrid-receiver/requests"
+	"github.com/cloudfoundry-incubator/notifications-sendgrid-receiver/web/services"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -12,7 +14,7 @@ import (
 
 var _ = Describe("RequestSender", func() {
 
-	var sender requests.RequestSender
+	var sender services.RequestSender
 	var request *http.Request
 	var err error
 
@@ -22,7 +24,7 @@ var _ = Describe("RequestSender", func() {
 			panic(err)
 		}
 
-		sender = requests.NewRequestSender()
+		sender = services.NewRequestSender(log.New(bytes.NewBuffer([]byte{}), "", 0))
 	})
 
 	Context("when the request to notifications is successful", func() {
@@ -52,7 +54,7 @@ var _ = Describe("RequestSender", func() {
 			It("returns a NotificationRequestFailed error", func() {
 				err := sender.Send(request)
 
-				Expect(err).To(BeAssignableToTypeOf(requests.NotificationRequestFailed{}))
+				Expect(err).To(BeAssignableToTypeOf(services.NotificationRequestFailed("")))
 			})
 		})
 
@@ -68,7 +70,7 @@ var _ = Describe("RequestSender", func() {
 			It("returns a NotificationRequestFailed error", func() {
 				err := sender.Send(request)
 
-				Expect(err).To(BeAssignableToTypeOf(requests.NotificationRequestFailed{}))
+				Expect(err).To(BeAssignableToTypeOf(services.NotificationRequestFailed("")))
 				Expect(err.Error()).To(Equal("Request to notifications failed with status code: 500"))
 			})
 		})

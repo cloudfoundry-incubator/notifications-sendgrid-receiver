@@ -1,4 +1,4 @@
-package config_test
+package services_test
 
 import (
 	"testing"
@@ -7,7 +7,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func TestConfigSuite(t *testing.T) {
+func TestWebSuite(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Config Suite")
+	RunSpecs(t, "Requests Suite")
 }
