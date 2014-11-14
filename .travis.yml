@@ -6,7 +6,9 @@ go:
 
 install: echo NOOP
 
-script: bin/ci
+env: ENVIRONMENT=ci
+
+script: bin/unit
 before_script:
   - export PATH=$HOME/gopath/bin:$PATH
   - go get code.google.com/p/go.tools/cmd/cover
