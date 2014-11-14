@@ -3,7 +3,6 @@ package application
 import (
 	"time"
 
-	"github.com/cloudfoundry-incubator/notifications-sendgrid-receiver/web"
 	"github.com/ryanmoran/viron"
 )
 
@@ -17,20 +16,13 @@ func (app Application) Boot() {
 	mother := NewMother()
 	logger := mother.Logger()
 	env := mother.Environment()
-
-	logger.Println("Trying to boot")
+	server := mother.Server()
+	uaaClient := mother.UAAClient()
 
 	logger.Println("Booting with configuration:")
 	viron.Print(env, logger)
 
-	server := web.NewServer(web.Config{
-		Port:              env.Port,
-		Logger:            logger,
-		NotificationsHost: env.NotificationsHost,
-		BasicAuthUsername: env.BasicAuthUsername,
-		BasicAuthPassword: env.BasicAuthPassword,
-	})
-	server.Run(mother.UAAClient())
+	server.Run(uaaClient)
 }
 
 // This is a hack to get the logs to output to the loggregator before the process exits

@@ -28,7 +28,7 @@ func (server Server) Run(uaaClient handlers.UAAClientInterface) {
 
 func (server Server) Router(uaaClient handlers.UAAClientInterface) *mux.Router {
 	requestBuilder := services.NewRequestBuilder(server.config.NotificationsHost)
-	requestSender := services.NewRequestSender(server.config.Logger)
+	requestSender := services.NewRequestSender(server.config.Logger, server.config.VerifySSL)
 	requestParser := services.NewRequestBodyParser()
 	basicAuthenticator := services.NewBasicAuthenticator(server.config.BasicAuthUsername, server.config.BasicAuthPassword)
 

@@ -1,11 +1,33 @@
 package services
 
 import (
+	"crypto/tls"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"sync"
 )
+
+var _client *http.Client
+var mutex sync.Mutex
+
+func GetClient(verifySSL bool) *http.Client {
+	mutex.Lock()
+	defer mutex.Unlock()
+
+	if _client == nil {
+		_client = &http.Client{
+			Transport: &http.Transport{
+				TLSClientConfig: &tls.Config{
+					InsecureSkipVerify: !verifySSL,
+				},
+			},
+		}
+	}
+
+	return _client
+}
 
 type NotificationRequestFailed string
 
@@ -18,10 +40,10 @@ type RequestSender struct {
 	logger      *log.Logger
 }
 
-func NewRequestSender(logger *log.Logger) RequestSender {
+func NewRequestSender(logger *log.Logger, verifySSL bool) RequestSender {
 	return RequestSender{
 		MakeRequest: func(req *http.Request) (*http.Response, error) {
-			client := http.DefaultClient
+			client := GetClient(verifySSL)
 			return client.Do(req)
 		},
 		logger: logger,

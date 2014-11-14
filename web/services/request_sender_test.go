@@ -13,7 +13,6 @@ import (
 )
 
 var _ = Describe("RequestSender", func() {
-
 	var sender services.RequestSender
 	var request *http.Request
 	var err error
@@ -24,7 +23,7 @@ var _ = Describe("RequestSender", func() {
 			panic(err)
 		}
 
-		sender = services.NewRequestSender(log.New(bytes.NewBuffer([]byte{}), "", 0))
+		sender = services.NewRequestSender(log.New(bytes.NewBuffer([]byte{}), "", 0), false)
 	})
 
 	Context("when the request to notifications is successful", func() {

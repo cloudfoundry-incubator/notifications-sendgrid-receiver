@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/cloudfoundry-incubator/notifications-sendgrid-receiver/web"
 	"github.com/pivotal-cf/uaa-sso-golang/uaa"
 )
 
@@ -33,4 +34,17 @@ func (mother *Mother) UAAClient() uaa.UAA {
 	client.VerifySSL = env.VerifySSL
 
 	return client
+}
+
+func (mother *Mother) Server() web.Server {
+	env := mother.Environment()
+
+	return web.NewServer(web.Config{
+		Port:              env.Port,
+		Logger:            mother.Logger(),
+		NotificationsHost: env.NotificationsHost,
+		BasicAuthUsername: env.BasicAuthUsername,
+		BasicAuthPassword: env.BasicAuthPassword,
+		VerifySSL:         env.VerifySSL,
+	})
 }

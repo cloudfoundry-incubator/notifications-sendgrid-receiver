@@ -63,7 +63,13 @@ func (handler ForwardEmail) ServeHTTP(w http.ResponseWriter, req *http.Request, 
 		w.WriteHeader(http.StatusServiceUnavailable)
 		return
 	}
-	handler.requestSender.Send(request)
+
+	err = handler.requestSender.Send(request)
+	if err != nil {
+		handler.logger.Println("Failed to send request to notifications: " + err.Error())
+		w.WriteHeader(http.StatusServiceUnavailable)
+		return
+	}
 
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(`{}`))

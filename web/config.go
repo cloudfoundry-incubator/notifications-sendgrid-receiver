@@ -3,9 +3,10 @@ package web
 import "log"
 
 type Config struct {
-	Port              string
+	BasicAuthPassword string
+	BasicAuthUsername string
 	Logger            *log.Logger
 	NotificationsHost string
-	BasicAuthUsername string
-	BasicAuthPassword string
+	Port              string
+	VerifySSL         bool
 }
