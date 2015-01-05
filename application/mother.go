@@ -36,6 +36,12 @@ func (mother *Mother) UAAClient() uaa.UAA {
 	return client
 }
 
+func (mother Mother) Registrar() Registrar {
+	env := mother.Environment()
+
+	return NewRegistrar(env.NotificationsHost)
+}
+
 func (mother *Mother) Server() web.Server {
 	env := mother.Environment()
 
