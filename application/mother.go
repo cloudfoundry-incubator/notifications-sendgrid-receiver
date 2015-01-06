@@ -39,7 +39,7 @@ func (mother *Mother) UAAClient() uaa.UAA {
 func (mother Mother) Registrar() Registrar {
 	env := mother.Environment()
 
-	return NewRegistrar(env.NotificationsHost)
+	return NewRegistrar(env.NotificationsHost, env.VerifySSL)
 }
 
 func (mother *Mother) Server() web.Server {

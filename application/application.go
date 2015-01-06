@@ -33,7 +33,10 @@ func (app Application) register(uaaClient uaa.UAA, registrar Registrar) {
 		panic(err)
 	}
 
-	registrar.Register(token.Access)
+	err = registrar.Register(token.Access)
+	if err != nil {
+		panic(err)
+	}
 }
 
 // This is a hack to get the logs to output to the loggregator before the process exits

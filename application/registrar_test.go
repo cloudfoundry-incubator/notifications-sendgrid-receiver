@@ -84,7 +84,7 @@ func (handler *NotificationsHandler) ServeHTTP(w http.ResponseWriter, req *http.
 
 	handler.SourceName = body.SourceName
 
-	w.WriteHeader(http.StatusOK)
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func (handler NotificationsHandler) authenticated(scopes []interface{}) bool {
@@ -127,7 +127,8 @@ var _ = Describe("Registrar", func() {
 	})
 
 	It("registers the service with notifications", func() {
-		registrar := application.NewRegistrar(server.URL)
+		verifySSL := true
+		registrar := application.NewRegistrar(server.URL, verifySSL)
 
 		token := generateTokenWithScopes("notifications.write")
 		err := registrar.Register(token)
