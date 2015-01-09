@@ -69,7 +69,7 @@ func (handler ForwardEmail) ServeHTTP(w http.ResponseWriter, req *http.Request, 
 	if err != nil {
 		handler.logger.Println("Failed to send request to notifications: " + err.Error())
 
-		if err == services.SpaceNotFound("") {
+		if _, ok := err.(services.SpaceNotFound); ok {
 			w.WriteHeader(http.StatusOK)
 			return
 		}

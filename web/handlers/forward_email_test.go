@@ -154,7 +154,7 @@ var _ = Describe("Forward", func() {
 
 		Context("when the request sender returns an error", func() {
 			It("responds to a missing space error with a 200", func() {
-				requestSender.SendError = services.SpaceNotFound("")
+				requestSender.SendError = services.SpaceNotFound("this is a failure")
 
 				writer := httptest.NewRecorder()
 				body := []byte(formData)
