@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/cloudfoundry-incubator/notifications-sendgrid-receiver/web/services"
 	"github.com/ryanmoran/stack"
 )
 
@@ -67,6 +68,12 @@ func (handler ForwardEmail) ServeHTTP(w http.ResponseWriter, req *http.Request, 
 	err = handler.requestSender.Send(request)
 	if err != nil {
 		handler.logger.Println("Failed to send request to notifications: " + err.Error())
+
+		if err == services.SpaceNotFound("") {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
 		w.WriteHeader(http.StatusServiceUnavailable)
 		return
 	}

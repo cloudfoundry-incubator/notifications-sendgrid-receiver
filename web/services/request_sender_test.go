@@ -57,7 +57,20 @@ var _ = Describe("RequestSender", func() {
 			})
 		})
 
-		Context("when the notifications responds with any other non successful error", func() {
+		Context("when notifications responds with a 404", func() {
+			BeforeEach(func() {
+				sender.MakeRequest = func(req *http.Request) (*http.Response, error) {
+					return &http.Response{StatusCode: 404}, nil
+				}
+			})
+
+			It("returns a SpaceNotFound error", func() {
+				err := sender.Send(request)
+				Expect(err).To(BeAssignableToTypeOf(services.SpaceNotFound("")))
+			})
+		})
+
+		Context("when notifications responds with any other non successful error", func() {
 			BeforeEach(func() {
 				sender.MakeRequest = func(req *http.Request) (*http.Response, error) {
 					return &http.Response{

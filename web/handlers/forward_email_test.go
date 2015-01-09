@@ -2,6 +2,7 @@ package handlers_test
 
 import (
 	"bytes"
+	"errors"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -145,6 +146,38 @@ var _ = Describe("Forward", func() {
 				}
 
 				request.Header.Add("Content-Type", "multipart/form-data; boundary=xYzZy")
+				handler.ServeHTTP(writer, request, nil)
+
+				Expect(writer.Code).To(Equal(http.StatusServiceUnavailable))
+			})
+		})
+
+		Context("when the request sender returns an error", func() {
+			It("responds to a missing space error with a 200", func() {
+				requestSender.SendError = services.SpaceNotFound("")
+
+				writer := httptest.NewRecorder()
+				body := []byte(formData)
+				request, err := http.NewRequest("POST", "/", bytes.NewBuffer(body))
+				if err != nil {
+					panic(err)
+				}
+
+				handler.ServeHTTP(writer, request, nil)
+
+				Expect(writer.Code).To(Equal(http.StatusOK))
+			})
+
+			It("responds to all other errors with a 503", func() {
+				requestSender.SendError = errors.New("There's a snake in my boot!!!")
+
+				writer := httptest.NewRecorder()
+				body := []byte(formData)
+				request, err := http.NewRequest("POST", "/", bytes.NewBuffer(body))
+				if err != nil {
+					panic(err)
+				}
+
 				handler.ServeHTTP(writer, request, nil)
 
 				Expect(writer.Code).To(Equal(http.StatusServiceUnavailable))

@@ -35,6 +35,12 @@ func (err NotificationRequestFailed) Error() string {
 	return string(err)
 }
 
+type SpaceNotFound string
+
+func (err SpaceNotFound) Error() string {
+	return fmt.Sprintf("Space not found: %q", string(err))
+}
+
 type RequestSender struct {
 	MakeRequest func(*http.Request) (*http.Response, error)
 	logger      *log.Logger
@@ -57,16 +63,20 @@ func (sender RequestSender) Send(req *http.Request) error {
 		return NotificationRequestFailed(err.Error())
 	}
 
+	var errorMessage []byte
 	if response.Body != nil {
-		errorMessage, _ := ioutil.ReadAll(response.Body)
+		errorMessage, _ = ioutil.ReadAll(response.Body)
 		sender.logger.Printf("notifications response body: %s", string(errorMessage))
 	}
 
 	sender.logger.Printf("notifications response code: %d", response.StatusCode)
 
-	if response.StatusCode != 200 {
+	switch response.StatusCode {
+	case 200:
+		return nil
+	case 404:
+		return SpaceNotFound(string(errorMessage))
+	default:
 		return NotificationRequestFailed(fmt.Sprintf("Request to notifications failed with status code: %d", response.StatusCode))
 	}
-
-	return nil
 }
