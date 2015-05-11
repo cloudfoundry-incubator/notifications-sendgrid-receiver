@@ -19,8 +19,3 @@ The app can be booted by running:
 The test suite is run by:
 
 	bin/unit
-	
-
-### CI
-
-The project is set up with travis and is located [here](https://travis-ci.org/cloudfoundry-incubator/notifications-sendgrid-receiver)
