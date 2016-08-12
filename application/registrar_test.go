@@ -60,7 +60,7 @@ type NotificationsHandler struct {
 
 func (handler *NotificationsHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	header := req.Header.Get("Authorization")
-	token, err := jwt.Parse(strings.TrimPrefix(header, "Bearer "), jwt.Keyfunc(func(token *jwt.Token) ([]byte, error) {
+	token, err := jwt.Parse(strings.TrimPrefix(header, "Bearer "), jwt.Keyfunc(func(token *jwt.Token) (interface{}, error) {
 		return []byte(PublicPEM), nil
 	}))
 	if err != nil {
