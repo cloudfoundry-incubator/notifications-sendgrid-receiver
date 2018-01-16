@@ -52,5 +52,6 @@ func (mother *Mother) Server() web.Server {
 		BasicAuthUsername: env.BasicAuthUsername,
 		BasicAuthPassword: env.BasicAuthPassword,
 		VerifySSL:         env.VerifySSL,
+		MaxRequests:       env.MaxRequests,
 	})
 }

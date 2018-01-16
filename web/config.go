@@ -9,4 +9,5 @@ type Config struct {
 	NotificationsHost string
 	Port              string
 	VerifySSL         bool
+	MaxRequests       int
 }

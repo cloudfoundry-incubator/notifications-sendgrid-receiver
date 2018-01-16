@@ -14,12 +14,13 @@ type ForwardEmail struct {
 	uaaClient          UAAClientInterface
 	requestBodyParser  RequestBodyParserInterface
 	basicAuthenticator BasicAuthenticatorInterface
+	throttler          ThrottlerInterface
 	logger             *log.Logger
 }
 
 func NewForwardEmail(requestBuilder RequestBuilderInterface, requestSender RequestSenderInterface,
 	uaaClient UAAClientInterface, requestBodyParser RequestBodyParserInterface,
-	basicAuthenticator BasicAuthenticatorInterface, logger *log.Logger) ForwardEmail {
+	basicAuthenticator BasicAuthenticatorInterface, throttler ThrottlerInterface, logger *log.Logger) ForwardEmail {
 
 	return ForwardEmail{
 		requestBuilder:     requestBuilder,
@@ -27,11 +28,20 @@ func NewForwardEmail(requestBuilder RequestBuilderInterface, requestSender Reque
 		uaaClient:          uaaClient,
 		requestBodyParser:  requestBodyParser,
 		basicAuthenticator: basicAuthenticator,
+		throttler:          throttler,
 		logger:             logger,
 	}
 }
 
 func (handler ForwardEmail) ServeHTTP(w http.ResponseWriter, req *http.Request, context stack.Context) {
+
+	if handler.throttler.Throttle() {
+		w.WriteHeader(http.StatusTooManyRequests)
+		w.Write([]byte(`{}`))
+		return
+	}
+	defer handler.throttler.Finish()
+
 	if req.Body == nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(`{}`))

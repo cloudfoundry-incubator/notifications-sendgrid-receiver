@@ -34,7 +34,7 @@ func (server Server) Router(uaaClient handlers.UAAClientInterface) *mux.Router {
 
 	stacks := map[string]stack.Stack{
 		"GET /info": stack.NewStack(handlers.NewGetInfo()),
-		"POST /":    stack.NewStack(handlers.NewForwardEmail(requestBuilder, requestSender, uaaClient, requestParser, basicAuthenticator, server.config.Logger)),
+		"POST /":    stack.NewStack(handlers.NewForwardEmail(requestBuilder, requestSender, uaaClient, requestParser, basicAuthenticator, services.NewThrottler(server.config.MaxRequests), server.config.Logger)),
 	}
 
 	r := mux.NewRouter()

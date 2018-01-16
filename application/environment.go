@@ -9,6 +9,7 @@ type Environment struct {
 	BasicAuthUsername string `env:"BASIC_AUTH_USER_NAME"`
 	CCHost            string `env:"CC_HOST"            env-required:"true"`
 	LogFile           string `env:"LOG_FILE"`
+	MaxRequests       int    `env:"MAX_REQUESTS"       env-default:"2"`
 	NotificationsHost string `env:"NOTIFICATIONS_HOST" env-required:"true"`
 	Port              string `env:"PORT"               env-required:"true"`
 	UAAClientID       string `env:"UAA_CLIENT_ID"      env-required:"true"`

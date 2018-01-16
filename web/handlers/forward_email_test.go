@@ -22,6 +22,7 @@ var _ = Describe("Forward", func() {
 	var uaaClient *fakes.UAAClient
 	var bodyParser *fakes.RequestBodyParser
 	var basicAuthenticator *fakes.BasicAuthenticator
+	var throttler *fakes.Throttler
 
 	BeforeEach(func() {
 		requestBuilder = fakes.NewRequestBuilder()
@@ -29,9 +30,11 @@ var _ = Describe("Forward", func() {
 		uaaClient = fakes.NewUAAClient()
 		bodyParser = fakes.NewRequestBodyParser()
 		basicAuthenticator = fakes.NewBasicAuthenticator()
+		throttler = &fakes.Throttler{}
 		logger := log.New(bytes.NewBuffer([]byte{}), "", 0)
 
-		handler = handlers.NewForwardEmail(requestBuilder, requestSender, uaaClient, bodyParser, basicAuthenticator, logger)
+		handler = handlers.NewForwardEmail(requestBuilder, requestSender, uaaClient, bodyParser, basicAuthenticator, throttler,
+			logger)
 	})
 
 	AfterEach(func() {
@@ -100,6 +103,7 @@ var _ = Describe("Forward", func() {
 
 				Expect(writer.Code).To(Equal(http.StatusOK))
 				Expect(writer.Body.String()).To(Equal("{}"))
+				Expect(throttler.FinishCalled).To(BeTrue())
 			})
 		})
 
@@ -199,6 +203,23 @@ var _ = Describe("Forward", func() {
 				handler.ServeHTTP(writer, request, nil)
 
 				Expect(writer.Code).To(Equal(http.StatusServiceUnavailable))
+			})
+		})
+
+		Context("when receiving too many requests", func() {
+			It("sets the status code to 429", func() {
+				throttler.TooManyReceived = true
+
+				writer := httptest.NewRecorder()
+				body := []byte(formData)
+				request, err := http.NewRequest("POST", "/", bytes.NewBuffer(body))
+				if err != nil {
+					panic(err)
+				}
+
+				handler.ServeHTTP(writer, request, nil)
+
+				Expect(writer.Code).To(Equal(http.StatusTooManyRequests))
 			})
 		})
 	})

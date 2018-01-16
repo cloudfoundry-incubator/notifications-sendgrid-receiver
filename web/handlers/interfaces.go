@@ -25,3 +25,8 @@ type RequestBodyParserInterface interface {
 type BasicAuthenticatorInterface interface {
 	Verify(header http.Header) bool
 }
+
+type ThrottlerInterface interface {
+	Throttle() bool
+	Finish()
+}
