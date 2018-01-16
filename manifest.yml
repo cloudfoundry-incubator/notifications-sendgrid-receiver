@@ -2,4 +2,4 @@
 applications:
   - name: notifications-sendgrid-receiver
     command: bin/notifications-sendgrid-receiver
-    memory: 64M
+    memory: 128M
